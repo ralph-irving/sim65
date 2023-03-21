@@ -19,6 +19,7 @@ public:
   Acia6551Frame (const wxString& title, Acia6551 * acia);
   ~Acia6551Frame();
 
+  void OnExit (wxCommandEvent&);
   void OnClose (wxCloseEvent&);
 
   // Acia6551Listener interface

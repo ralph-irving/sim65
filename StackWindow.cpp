@@ -26,7 +26,7 @@ StackWindow::StackWindow (wxWindow * parent)
   SetBackgroundColour(*wxWHITE);
 
   Prefs * prefs = Prefs::GetPrefs();
-  SetFont(wxFont(prefs->WindowFontSize(), wxMODERN, wxNORMAL, wxNORMAL));
+  SetFont(wxFont(prefs->WindowFontSize(), wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
 
   firstaddr = lastaddr = 0;
 
@@ -41,7 +41,11 @@ StackWindow::StackWindow (wxWindow * parent)
   int client_width = (STACKWIN_WIDTH * cwidth);
   int scrollbar_width = wxSystemSettings::GetMetric(wxSYS_VSCROLL_X, this);
   SetScrollbars(cwidth, cheight, STACKWIN_WIDTH, 256);
-  SetClientSize(client_width + scrollbar_width + 1, cheight);
+
+  wxSize csz;
+  csz.Set(client_width + scrollbar_width + 1, cheight);
+  SetClientSize(csz);
+  SetMinClientSize(csz);
 }
 
 #if 0

@@ -9,7 +9,7 @@
 #include "AddressPeripheral.h"
 #include "MemoryListener.h"
 
-#define MAX_NUM_LISTENERS 4
+#define MAX_NUM_LISTENERS 8
 
 class Memory: public AddressPeripheral
 {

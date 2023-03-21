@@ -47,12 +47,16 @@ BreakpointWindow::BreakpointWindow (wxWindow * parent, BreakpointManager * nbpm)
   SetBackgroundColour(*wxWHITE);
 
   Prefs * prefs = Prefs::GetPrefs();
-  SetFont(wxFont(prefs->WindowFontSize(), wxMODERN, wxNORMAL, wxNORMAL));
+  SetFont(wxFont(prefs->WindowFontSize(), wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
 
   cwidth = GetCharWidth();
   cheight = GetCharHeight();
 
-  SetClientSize(BPWIN_WIDTH * cwidth, cheight);
+  wxSize csz;
+  csz.Set(BPWIN_WIDTH * cwidth, cheight);
+  SetClientSize(csz);
+  SetMinClientSize(csz);
+  
   SetScrollbars(cwidth, cheight, BPWIN_WIDTH, 0);
 }
 

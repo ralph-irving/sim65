@@ -14,8 +14,9 @@
 #include "Prefs.h"
 #include "Acia6551.h"
 #include "Acia6551Frame.h"
+#include "AppleTextFrame.h"
 
-#define NORESIZE_FRAME (wxDEFAULT_FRAME_STYLE & ~(wxRESIZE_BORDER | wxRESIZE_BOX | wxMAXIMIZE_BOX))
+#define NORESIZE_FRAME (wxDEFAULT_FRAME_STYLE & ~(wxRESIZE_BORDER | wxMAXIMIZE_BOX))
 
 enum
   {
@@ -71,6 +72,7 @@ EVT_BUTTON(Butt_StepOver, SimFrame::OnStepOver)
 EVT_BUTTON(Butt_MStep, SimFrame::OnMStep)
 EVT_BUTTON(Butt_Trace, SimFrame::OnTrace)
 EVT_IDLE(SimFrame::OnIdle)
+EVT_CLOSE(SimFrame::OnClose)
 END_EVENT_TABLE()
 
 SimFrame::SimFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
@@ -160,7 +162,7 @@ SimFrame::SimFrame(const wxString& title, const wxPoint& pos, const wxSize& size
   diswin = new DisasmWindow(panel, mem, bpm);
   bpwin = new BreakpointWindow(panel, bpm);
 
-  memwin = new MemWindow(panel, mem);
+  //memwin = new MemWindow(panel, mem);
 
   btrun = new wxButton(panel, Butt_Run, wxString::FromAscii("Run"), wxDefaultPosition);
   btstop = new wxButton(panel, Butt_Stop, wxString::FromAscii("Stop"), wxDefaultPosition);
@@ -217,8 +219,11 @@ SimFrame::SimFrame(const wxString& title, const wxPoint& pos, const wxSize& size
   top_sizer->Add(dis_sizer, 0, wxEXPAND, prefs->BorderWidth());
   top_sizer->Add(2*prefs->BorderWidth(), 0, 0, 0); // spacer
 
-  wxStaticBox * mem_box = new wxStaticBox(panel, -1, wxString::FromAscii("Memory"));
-  wxSizer * mem_sizer = new wxStaticBoxSizer(mem_box, wxVERTICAL);
+  //wxStaticBox * mem_box = new wxStaticBox(panel, -1, wxString::FromAscii("Memory"));
+  //wxSizer * mem_sizer = new wxStaticBoxSizer(mem_box, wxVERTICAL);
+  //mem_sizer->Add(memwin, 0, wxALL, prefs->BorderWidth());
+  wxStaticBoxSizer * mem_sizer = new wxStaticBoxSizer(wxVERTICAL, panel, "Memory");
+  memwin = new MemWindow(mem_sizer->GetStaticBox(), mem);
   mem_sizer->Add(memwin, 0, wxALL, prefs->BorderWidth());
 
   wxBoxSizer * butt_sizer = new wxBoxSizer(wxVERTICAL);
@@ -252,51 +257,20 @@ SimFrame::SimFrame(const wxString& title, const wxPoint& pos, const wxSize& size
   this->SetSizer(panel_sizer);
   panel_sizer->SetSizeHints(this);
 
-#if 0
-  mem->init_ram_memory_read(0, 0xBFFF, 0);
-  mem->init_ram_memory_write(0, 0xBFFF, 0);
-  mem->init_rom_memory(0xC100, 0xFFFF, 0xC100);
-#else
   mem->init_ram_memory_read(0, 0xFFFF, 0);
   mem->init_ram_memory_write(0, 0xFFFF, 0);
-#endif
 
-  // initialize all of address space to null peripheral
-  ap_reader_t nul_reader = nul->GetReader(0);
-  ap_writer_t nul_writer = nul->GetWriter(0);
-
-  for (int idx = 0x0000; idx <= 0xFFFF; ++idx)
-    {
-      ap_reader[idx] = nul_reader;
-      ap_writer[idx] = nul_writer;
-    }
-
-#if 1
-  // memory (ram & rom)
+  // initialize all of address space to RAM
   ap_reader_t mem_reader = mem->GetReader(0);
   ap_writer_t mem_writer = mem->GetWriter(0);
 
-#if 0
-  for (int idx = 0; idx <= 0xBFFF; ++idx)
-    {
-      ap_reader[idx] = mem_reader;
-      ap_writer[idx] = mem_writer;
-    }
-
-  for (int idx = 0xC100; idx <= 0xFFFF; ++idx)
-    {
-      ap_reader[idx] = mem_reader;
-      ap_writer[idx] = mem_writer;
-    }
-#else
   for (int idx = 0; idx <= 0xFFFF; ++idx)
     {
       ap_reader[idx] = mem_reader;
       ap_writer[idx] = mem_writer;
     }
-#endif
 
-#if 0
+#if 1
   // 6551 serial port
   Acia6551 * ser = new Acia6551();
   ap[num_aps++] = ser;
@@ -325,6 +299,26 @@ SimFrame::SimFrame(const wxString& title, const wxPoint& pos, const wxSize& size
   ap_reader[0xC083] = ser->GetReader(3);
   ap_writer[0xC083] = ser->GetWriter(3);
 #endif
+
+#if 1
+  AppleTextFrame * textFrame = new AppleTextFrame("40-Col Text Display");
+  frame[numwmitems] = textFrame;
+  wmchecked[numwmitems] = false;
+  winmenu->AppendCheckItem(Win_First + numwmitems, "40-Col Display");
+  ++numwmitems;
+
+  ap_reader[0xC000] = textFrame->GetReader(0);
+  ap_writer[0xC000] = textFrame->GetWriter(0);
+  
+  ap_reader[0xC010] = textFrame->GetReader(1);
+  ap_writer[0xC010] = textFrame->GetWriter(1);
+  
+  for (unsigned short ad = 0x400; ad < 0x800; ad++)
+    {
+      ap_reader[ad] = textFrame->GetReader(2);
+      ap_writer[ad] = textFrame->GetWriter(2);
+    }
+
 #endif
 }
 
@@ -362,7 +356,14 @@ void SimFrame::OnWinMenu (wxCommandEvent& event)
 
 void SimFrame::OnExit (wxCommandEvent& WXUNUSED(event))
 {
-  Close(TRUE);
+  Close(true);
+}
+
+void SimFrame::OnClose (wxCloseEvent& WXUNUSED(event))
+{
+  unsigned int i;
+  for (i = 0; i < numwmitems; i++) frame[i]->Destroy();
+  Destroy();
 }
 
 void SimFrame::OnNew (wxCommandEvent& WXUNUSED(event))
@@ -380,7 +381,7 @@ void SimFrame::OnLoadBinary (wxCommandEvent& WXUNUSED(event))
 				       wxString::FromAscii(""),
 				       wxString::FromAscii(""),
 				       wxString::FromAscii("*.*"),
-				       wxOPEN | wxCHANGE_DIR);
+				       wxFD_OPEN | wxFD_CHANGE_DIR);
 
   int result = fd->ShowModal();
 
@@ -443,7 +444,7 @@ void SimFrame::OnLoadBinary (wxCommandEvent& WXUNUSED(event))
 			  if (mem->IsRom(addr))
 			    mem->LoadToRom(addr, buf[idx]);
 			  else
-			    mem->Write(addr, buf[idx]);
+			    WRITE(addr, buf[idx]);
 			}
 
 		      ++idx;
@@ -502,7 +503,7 @@ void SimFrame::load_srecord (struct srecord * srec, unsigned long * total)
 	  if (mem->IsRom(addr))
 	    mem->LoadToRom(addr, srec->data[idx]);
 	  else
-	    mem->Write(addr, srec->data[idx]);
+	    WRITE(addr, srec->data[idx]);
 
 	  ++addr;
 	}
@@ -518,7 +519,7 @@ void SimFrame::OnLoadSRecords (wxCommandEvent& WXUNUSED(event))
 					wxString::FromAscii(""),
 					wxString::FromAscii(""),
 					wxString::FromAscii("*.*"),
-				       wxOPEN | wxCHANGE_DIR);
+				       wxFD_OPEN | wxFD_CHANGE_DIR);
 
   int result = fd->ShowModal();
 

@@ -75,7 +75,7 @@ FlagsLabel::FlagsLabel (wxWindow * parent, int offs)
 
   Prefs * prefs = Prefs::GetPrefs();
   offset = offs - ((h - ch) / 2);
-  SetFont(wxFont(prefs->WindowFontSize(), wxMODERN, wxNORMAL, wxNORMAL));
+  SetFont(wxFont(prefs->WindowFontSize(), wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
 
   wxClientDC dc(this);
   dc.SetFont(GetFont());
@@ -84,7 +84,11 @@ FlagsLabel::FlagsLabel (wxWindow * parent, int offs)
   cheight = dc.GetCharHeight();
 
   dc.GetTextExtent(wxString::FromAscii("NV-BDIZC"), &w, &h);
-  SetClientSize(w, cheight);
+
+  wxSize csz;
+  csz.Set(w, cheight);
+  SetClientSize(csz);
+  SetMinClientSize(csz);
 }
 
 void FlagsLabel::OnPaint (wxPaintEvent& WXUNUSED(event))
@@ -115,7 +119,7 @@ FlagsWindow::FlagsWindow (wxWindow * parent, unsigned char * N, unsigned char * 
   SetBackgroundColour(*wxWHITE);
 
   Prefs * prefs = Prefs::GetPrefs();
-  SetFont(wxFont(prefs->WindowFontSize(), wxMODERN, wxNORMAL, wxNORMAL));
+  SetFont(wxFont(prefs->WindowFontSize(), wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
 
   wxClientDC dc(this);
   dc.SetFont(GetFont());
@@ -125,7 +129,10 @@ FlagsWindow::FlagsWindow (wxWindow * parent, unsigned char * N, unsigned char * 
 
   int w, h;
   dc.GetTextExtent(wxString::FromAscii("NV-BDIZC"), &w, &h);
-  SetClientSize(w + (2 * cwidth), 3 * cheight / 2);
+  wxSize csz;
+  csz.Set(w + (2 * cwidth), 3 * cheight / 2);
+  SetClientSize(csz);
+  SetMinClientSize(csz);
 }
 
 bool FlagsWindow::AddListener (ByteRegisterListener * new_listener)

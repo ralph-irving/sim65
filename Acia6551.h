@@ -9,8 +9,6 @@
 #include "Uart.h"
 #include "Acia6551Listener.h"
 
-#define MAX_NUM_LISTENERS 4
-
 class Acia6551 : public Uart
 {
 public:

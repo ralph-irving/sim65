@@ -35,6 +35,7 @@ public:
   void OnLoadBinary (wxCommandEvent& event);
   void OnLoadSRecords (wxCommandEvent& event);
   void OnExit (wxCommandEvent& event);
+  void OnClose (wxCloseEvent& event);
 
   void OnHelp (wxCommandEvent& event);
   void OnAbout (wxCommandEvent& event);

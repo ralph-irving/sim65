@@ -21,12 +21,14 @@ Uart::Uart ()
 
   txing = false;
   irq_enable = false;
-
+    
   tx.buf = NULL;
   tx.enable = DISABLED;
+  tx.parity = PARITY_EVEN;
 
   rx.buf = NULL;
   rx.enable = DISABLED;
+  rx.parity = PARITY_EVEN;
 
   par_error = false;
   frm_error = false;

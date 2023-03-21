@@ -11,7 +11,7 @@
 #include "UartListener.h"
 #include "UartTypes.h"
 
-#define MAX_NUM_LISTENERS 4
+#define MAX_NUM_LISTENERS 8
 
 class Uart; // forward for xcvr
 

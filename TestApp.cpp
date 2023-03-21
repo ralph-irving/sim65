@@ -19,7 +19,7 @@ private:
 class ByteWindow: public wxWindow
 {
 public:
-  ByteWindow::ByteWindow (wxWindow * parent, unsigned char * valptr);
+  ByteWindow (wxWindow * parent, unsigned char * valptr);
 
   void OnPaint (wxPaintEvent& event);
 
@@ -71,7 +71,7 @@ Label::Label (wxWindow * parent, char * text)
 {
   this->text = text;
 
-  SetFont(wxFont(10, wxNORMAL, wxNORMAL, wxNORMAL));
+  SetFont(wxFont(10, wxFONTFAMILY_ROMAN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
 
   wxClientDC dc(this);
   dc.SetFont(GetFont());
@@ -81,16 +81,17 @@ Label::Label (wxWindow * parent, char * text)
 
   int w, h, d;
   dc.GetTextExtent(text, &w, &h, &d);
-  SetClientSize(w, h+d);
+
+  wxSize csz(w, h+d);
+  SetClientSize(csz);
+  SetMinClientSize(csz);
 }
 
 void Label::OnPaint (wxPaintEvent& WXUNUSED(event))
 {
   wxPaintDC dc(this);
   dc.SetFont(GetFont());
-  dc.BeginDrawing();
   dc.DrawText(text, 0, 0);
-  dc.EndDrawing();
 }
 
 // Byte Window
@@ -105,7 +106,7 @@ ByteWindow::ByteWindow (wxWindow * parent, unsigned char * valptr)
   SetThemeEnabled(FALSE);
   SetBackgroundColour(*wxWHITE);
 
-  SetFont(wxFont(10, wxMODERN, wxNORMAL, wxNORMAL));
+  SetFont(wxFont(10, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
 
   myval = valptr;
 
@@ -126,9 +127,7 @@ void ByteWindow::OnPaint (wxPaintEvent& WXUNUSED(event))
 
   wxPaintDC dc(this);
   dc.SetFont(GetFont());
-  dc.BeginDrawing();
   dc.DrawText(valtext, cwidth, cheight / 4);
-  dc.EndDrawing();
 }
 
 // Labeled Byte Window
@@ -150,7 +149,7 @@ BEGIN_EVENT_TABLE(TestFrame, wxFrame)
 EVT_MENU(File_Exit, TestFrame::OnExit)
 END_EVENT_TABLE()
 
-#define NORESIZE_FRAME (wxDEFAULT_FRAME_STYLE & ~(wxRESIZE_BORDER | wxRESIZE_BOX | wxMAXIMIZE_BOX))
+#define NORESIZE_FRAME (wxDEFAULT_FRAME_STYLE & ~(wxRESIZE_BORDER | wxMAXIMIZE_BOX))
 
 TestFrame::TestFrame ()
   : wxFrame((wxFrame *)NULL, -1, "TestFrame", wxPoint(-1,-1), wxSize(-1,-1), NORESIZE_FRAME)

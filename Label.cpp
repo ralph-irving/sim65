@@ -20,7 +20,7 @@ Label::Label (wxWindow * parent, const char * ltxt, wxFont * font)
   Prefs * prefs = Prefs::GetPrefs();
 
   if (font == 0)
-    SetFont(wxFont(prefs->LabelFontSize(), wxNORMAL, wxNORMAL, wxNORMAL));
+    SetFont(wxFont(prefs->LabelFontSize(), wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
   else
     SetFont(*font);
 
@@ -32,7 +32,10 @@ Label::Label (wxWindow * parent, const char * ltxt, wxFont * font)
 
   int w, h, d;
   dc.GetTextExtent(wxString::FromAscii(ltxt), &w, &h, &d);
-  SetClientSize(w, h+d);
+  wxSize csz;
+  csz.Set(w, h+d);
+  SetClientSize(csz);
+  SetMinClientSize(csz);
 }
 
 void Label::OnPaint (wxPaintEvent& WXUNUSED(event))

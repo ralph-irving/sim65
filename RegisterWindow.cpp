@@ -92,7 +92,7 @@ ByteWindow::ByteWindow (wxWindow * parent, int width, ByteRegister * ptr)
   SetBackgroundColour(*wxWHITE);
 
   Prefs * prefs = Prefs::GetPrefs();
-  SetFont(wxFont(prefs->WindowFontSize(), wxMODERN, wxNORMAL, wxNORMAL));
+  SetFont(wxFont(prefs->WindowFontSize(), wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
 
   wxClientDC dc(this);
   dc.SetFont(GetFont());
@@ -100,7 +100,10 @@ ByteWindow::ByteWindow (wxWindow * parent, int width, ByteRegister * ptr)
   cwidth = dc.GetCharWidth();
   cheight = dc.GetCharHeight();
 
-  SetClientSize(width * cwidth, 3 * cheight / 2);
+  wxSize csz;
+  csz.Set(width * cwidth, 3 * cheight / 2);
+  SetClientSize(csz);
+  SetMinClientSize(csz);
 }
 
 void ByteWindow::Constrain (unsigned char sbits, unsigned char cbits)
@@ -202,7 +205,7 @@ WordWindow::WordWindow (wxWindow * parent, int width, WordRegister * ptr)
   SetBackgroundColour(*wxWHITE);
 
   Prefs * prefs = Prefs::GetPrefs();
-  SetFont(wxFont(prefs->WindowFontSize(), wxMODERN, wxNORMAL, wxNORMAL));
+  SetFont(wxFont(prefs->WindowFontSize(), wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
 
   wxClientDC dc(this);
   dc.SetFont(GetFont());
@@ -210,7 +213,10 @@ WordWindow::WordWindow (wxWindow * parent, int width, WordRegister * ptr)
   cwidth = dc.GetCharWidth();
   cheight = dc.GetCharHeight();
 
-  SetClientSize(width * cwidth, 3 * cheight / 2);
+  wxSize csz;
+  csz.Set(width * cwidth, 3 * cheight / 2);
+  SetClientSize(csz);
+  SetMinClientSize(csz);
 }
 
 void WordWindow::Constrain (unsigned short sbits, unsigned short cbits)

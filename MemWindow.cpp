@@ -37,7 +37,7 @@ MemWindow::MemWindow (wxWindow * parent, Memory * mem)
   SetBackgroundColour(*wxWHITE);
 
   Prefs * prefs = Prefs::GetPrefs();
-  SetFont(wxFont(prefs->WindowFontSize(), wxMODERN, wxNORMAL, wxNORMAL));
+  SetFont(wxFont(prefs->WindowFontSize(), wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
 
   caddr = -1;
   memaddr = 0;
@@ -58,7 +58,10 @@ MemWindow::MemWindow (wxWindow * parent, Memory * mem)
   int client_height = 12 * cheight;
 
   int cw, ch;
-  SetClientSize(client_width, client_height);
+  wxSize csz;
+  csz.Set(client_width, client_height);
+  SetClientSize(csz);
+  SetMinClientSize(csz);
   GetClientSize(&cw, &ch);
 
   // printf("1: set w=%d, h=%d   got w=%d, h=%d\n", client_width, client_height, cw, ch);
@@ -76,7 +79,7 @@ MemWindow::MemWindow (wxWindow * parent, Memory * mem)
       SetClientSize(client_width, client_height);
       GetClientSize(&cw, &ch);
 
-      // printf("2: set w=%d, h=%d   got w=%d, h=%d\n", client_width, client_height, cw, ch);
+      //printf("2: set w=%d, h=%d   got w=%d, h=%d\n", client_width, client_height, cw, ch);
     }
 
   // fflush(stdout);
@@ -98,7 +101,7 @@ void MemWindow::select_byte (int addr, int cx, int cy, int onoff)
   wxClientDC dc(this);
   dc.SetFont(GetFont());
 
-  sprintf(foo, "%2.2x", memory->Read(addr));
+  sprintf(foo, "%2.2x", READ(addr));
 
   if (cx < 33)
     cx -= (cx % 3);
@@ -139,6 +142,8 @@ void MemWindow::OnPaint (wxPaintEvent&  WXUNUSED(event))
   GetViewStart(&vx, &vy);
   GetClientSize(&cw, &ch);
   ch /= cheight;
+
+  //printf("2: got w=%d, h=%d\n", cw, ch);
 
 #if 0
   if (running || adjust_view)
@@ -182,7 +187,7 @@ void MemWindow::OnPaint (wxPaintEvent&  WXUNUSED(event))
 	    {
 	      if (memory->IsReadable(jdx))
 		{
-		  unsigned char membyte = memory->Read(jdx);
+		  unsigned char membyte = READ(jdx);
 		  foonum += sprintf(foo + foonum, "%2.2x ", membyte);
 		  if (isprint(membyte))
 		    barnum += sprintf(bar + barnum, "%c", membyte);
@@ -203,6 +208,7 @@ void MemWindow::OnPaint (wxPaintEvent&  WXUNUSED(event))
 	    }
 
 	  sprintf(foo + foonum, "%s", bar);
+	  dc.SetTextForeground(*wxBLACK);
 	  dc.DrawText(wxString::FromAscii(foo), 2*cwidth, idx*cheight);
 	}
     }
@@ -236,13 +242,13 @@ void MemWindow::OnChar (wxKeyEvent& event)
   if (alter == ALTER_START)
     {
       alter = ALTER_ONE_DIGIT;
-      memory->Write(caddr, kcode);
+      WRITE(caddr, kcode);
     }
   else
     {
       alter = ALTER_START;
-      kcode = 16 * memory->Read(caddr) + kcode;
-      memory->Write(caddr, kcode);
+      kcode = 16 * READ(caddr) + kcode;
+      WRITE(caddr, kcode);
     }
 
   int cw, ch;

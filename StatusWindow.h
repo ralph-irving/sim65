@@ -9,7 +9,7 @@
 #include "wx/wx.h"
 #include "ByteRegisterListener.h"
 
-#define MAX_NUM_LISTENERS 4
+#define MAX_NUM_LISTENERS 8
 
 class FlagsWindow;
 

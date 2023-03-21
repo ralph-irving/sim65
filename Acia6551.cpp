@@ -8,6 +8,8 @@
 
 Acia6551::Acia6551 () : Uart()
 {
+  num_listeners = 0;
+  
   status = 0x10;
   txbuf  = 0;
 
@@ -20,8 +22,6 @@ Acia6551::Acia6551 () : Uart()
   external_rx_clock = true;
 
   SetIrqEnable(false);
-
-  num_listeners = 0;
 }
 
 void Acia6551::AddAcia6551Listener (Acia6551Listener * nlistener)

@@ -23,74 +23,74 @@
 
 ifunc binary_instruction_table [256] =
 {
-  i00_BRK, i01_ORA,        iEA_NOP,        iEA_NOP, i04_TSB, i05_ORA,        i06_ASL, iEA_NOP,
-  i08_PHP, i09_ORA,        i0A_ASL,        iEA_NOP, i0C_TSB, i0D_ORA,        i0E_ASL, iEA_NOP,
-  i10_BPL, i11_ORA,        i12_ORA,        iEA_NOP, i14_TRB, i15_ORA,        i16_ASL, iEA_NOP,
-  i18_CLC, i19_ORA,        i1A_INC,        iEA_NOP, i1C_TRB, i1D_ORA,        i1E_ASL, iEA_NOP,
-  i20_JSR, i21_AND,        iEA_NOP,        iEA_NOP, i24_BIT, i25_AND,        i26_ROL, iEA_NOP,
-  i28_PLP, i29_AND,        i2A_ROL,        iEA_NOP, i2C_BIT, i2D_AND,        i2E_ROL, iEA_NOP,
-  i30_BMI, i31_AND,        i32_AND,        iEA_NOP, i34_BIT, i35_AND,        i36_ROL, iEA_NOP,
-  i38_SEC, i39_AND,        i3A_DEC,        iEA_NOP, i3C_BIT, i3D_AND,        i3E_ROL, iEA_NOP,
-  i40_RTI, i41_EOR,        iEA_NOP,        iEA_NOP, iEA_NOP, i45_EOR,        i46_LSR, iEA_NOP,
-  i48_PHA, i49_EOR,        i4A_LSR,        iEA_NOP, i4C_JMP, i4D_EOR,        i4E_LSR, iEA_NOP,
-  i50_BVC, i51_EOR,        i52_EOR,        iEA_NOP, iEA_NOP, i55_EOR,        i56_LSR, iEA_NOP,
-  i58_CLI, i59_EOR,        i5A_PHY,        iEA_NOP, iEA_NOP, i5D_EOR,        i5E_LSR, iEA_NOP,
-  i60_RTS, i61_ADC_binary, iEA_NOP,        iEA_NOP, i64_STZ, i65_ADC_binary, i66_ROR, iEA_NOP,
-  i68_PLA, i69_ADC_binary, i6A_ROR,        iEA_NOP, i6C_JMP, i6D_ADC_binary, i6E_ROR, iEA_NOP,
-  i70_BVS, i71_ADC_binary, i72_ADC_binary, iEA_NOP, i74_STZ, i75_ADC_binary, i76_ROR, iEA_NOP,
-  i78_SEI, i79_ADC_binary, i7A_PLY,        iEA_NOP, i7C_JMP, i7D_ADC_binary, i7E_ROR, iEA_NOP,
-  i80_BRA, i81_STA,        iEA_NOP,        iEA_NOP, i84_STY, i85_STA,        i86_STX, iEA_NOP,
-  i88_DEY, i89_BIT,        i8A_TXA,        iEA_NOP, i8C_STY, i8D_STA,        i8E_STX, iEA_NOP,
-  i90_BCC, i91_STA,        i92_STA,        iEA_NOP, i94_STY, i95_STA,        i96_STX, iEA_NOP,
-  i98_TYA, i99_STA,        i9A_TXS,        iEA_NOP, i9C_STZ, i9D_STA,        i9E_STZ, iEA_NOP,
-  iA0_LDY, iA1_LDA,        iA2_LDX,        iEA_NOP, iA4_LDY, iA5_LDA,        iA6_LDX, iEA_NOP,
-  iA8_TAY, iA9_LDA,        iAA_TAX,        iEA_NOP, iAC_LDY, iAD_LDA,        iAE_LDX, iEA_NOP,
-  iB0_BCS, iB1_LDA,        iB2_LDA,        iEA_NOP, iB4_LDY, iB5_LDA,        iB6_LDX, iEA_NOP,
-  iB8_CLV, iB9_LDA,        iBA_TSX,        iEA_NOP, iBC_LDY, iBD_LDA,        iBE_LDX, iEA_NOP,
-  iC0_CPY, iC1_CMP,        iEA_NOP,        iEA_NOP, iC4_CPY, iC5_CMP,        iC6_DEC, iEA_NOP,
-  iC8_INY, iC9_CMP,        iCA_DEX,        iEA_NOP, iCC_CPY, iCD_CMP,        iCE_DEC, iEA_NOP,
-  iD0_BNE, iD1_CMP,        iD2_CMP,        iEA_NOP, iEA_NOP, iD5_CMP,        iD6_DEC, iEA_NOP,
-  iD8_CLD, iD9_CMP,        iDA_PHX,        iEA_NOP, iEA_NOP, iDD_CMP,        iDE_DEC, iEA_NOP,
-  iE0_CPX, iE1_SBC_binary, iEA_NOP,        iEA_NOP, iE4_CPX, iE5_SBC_binary, iE6_INC, iEA_NOP,
-  iE8_INX, iE9_SBC_binary, iEA_NOP,        iEA_NOP, iEC_CPX, iED_SBC_binary, iEE_INC, iEA_NOP,
-  iF0_BEQ, iF1_SBC_binary, iF2_SBC_binary, iEA_NOP, iEA_NOP, iF5_SBC_binary, iF6_INC, iEA_NOP,
-  iF8_SED, iF9_SBC_binary, iFA_PLX,        iEA_NOP, iEA_NOP, iFD_SBC_binary, iFE_INC, iEA_NOP
+  i00_BRK, i01_ORA,        i02_NOP,        iEA_NOP, i04_TSB, i05_ORA,        i06_ASL, i07_RMB,
+  i08_PHP, i09_ORA,        i0A_ASL,        iEA_NOP, i0C_TSB, i0D_ORA,        i0E_ASL, i0F_BBR,
+  i10_BPL, i11_ORA,        i12_ORA,        iEA_NOP, i14_TRB, i15_ORA,        i16_ASL, i17_RMB,
+  i18_CLC, i19_ORA,        i1A_INC,        iEA_NOP, i1C_TRB, i1D_ORA,        i1E_ASL, i1F_BBR,
+  i20_JSR, i21_AND,        i02_NOP,        iEA_NOP, i24_BIT, i25_AND,        i26_ROL, i27_RMB,
+  i28_PLP, i29_AND,        i2A_ROL,        iEA_NOP, i2C_BIT, i2D_AND,        i2E_ROL, i2F_BBR,
+  i30_BMI, i31_AND,        i32_AND,        iEA_NOP, i34_BIT, i35_AND,        i36_ROL, i37_RMB,
+  i38_SEC, i39_AND,        i3A_DEC,        iEA_NOP, i3C_BIT, i3D_AND,        i3E_ROL, i3F_BBR,
+  i40_RTI, i41_EOR,        i02_NOP,        iEA_NOP, i02_NOP, i45_EOR,        i46_LSR, i47_RMB,
+  i48_PHA, i49_EOR,        i4A_LSR,        iEA_NOP, i4C_JMP, i4D_EOR,        i4E_LSR, i4F_BBR,
+  i50_BVC, i51_EOR,        i52_EOR,        iEA_NOP, i02_NOP, i55_EOR,        i56_LSR, i57_RMB,
+  i58_CLI, i59_EOR,        i5A_PHY,        iEA_NOP, i5C_NOP, i5D_EOR,        i5E_LSR, i5F_BBR,
+  i60_RTS, i61_ADC_binary, i02_NOP,        iEA_NOP, i64_STZ, i65_ADC_binary, i66_ROR, i67_RMB,
+  i68_PLA, i69_ADC_binary, i6A_ROR,        iEA_NOP, i6C_JMP, i6D_ADC_binary, i6E_ROR, i6F_BBR,
+  i70_BVS, i71_ADC_binary, i72_ADC_binary, iEA_NOP, i74_STZ, i75_ADC_binary, i76_ROR, i77_RMB,
+  i78_SEI, i79_ADC_binary, i7A_PLY,        iEA_NOP, i7C_JMP, i7D_ADC_binary, i7E_ROR, i7F_BBR,
+  i80_BRA, i81_STA,        i02_NOP,        iEA_NOP, i84_STY, i85_STA,        i86_STX, i87_SMB,
+  i88_DEY, i89_BIT,        i8A_TXA,        iEA_NOP, i8C_STY, i8D_STA,        i8E_STX, i8F_BBS,
+  i90_BCC, i91_STA,        i92_STA,        iEA_NOP, i94_STY, i95_STA,        i96_STX, i97_SMB,
+  i98_TYA, i99_STA,        i9A_TXS,        iEA_NOP, i9C_STZ, i9D_STA,        i9E_STZ, i9F_BBS,
+  iA0_LDY, iA1_LDA,        iA2_LDX,        iEA_NOP, iA4_LDY, iA5_LDA,        iA6_LDX, iA7_SMB,
+  iA8_TAY, iA9_LDA,        iAA_TAX,        iEA_NOP, iAC_LDY, iAD_LDA,        iAE_LDX, iAF_BBS,
+  iB0_BCS, iB1_LDA,        iB2_LDA,        iEA_NOP, iB4_LDY, iB5_LDA,        iB6_LDX, iB7_SMB,
+  iB8_CLV, iB9_LDA,        iBA_TSX,        iEA_NOP, iBC_LDY, iBD_LDA,        iBE_LDX, iBF_BBS,
+  iC0_CPY, iC1_CMP,        i02_NOP,        iEA_NOP, iC4_CPY, iC5_CMP,        iC6_DEC, iC7_SMB,
+  iC8_INY, iC9_CMP,        iCA_DEX,        iEA_NOP, iCC_CPY, iCD_CMP,        iCE_DEC, iCF_BBS,
+  iD0_BNE, iD1_CMP,        iD2_CMP,        iEA_NOP, i02_NOP, iD5_CMP,        iD6_DEC, iD7_SMB,
+  iD8_CLD, iD9_CMP,        iDA_PHX,        iEA_NOP, i5C_NOP, iDD_CMP,        iDE_DEC, iDF_BBS,
+  iE0_CPX, iE1_SBC_binary, i02_NOP,        iEA_NOP, iE4_CPX, iE5_SBC_binary, iE6_INC, iE7_SMB,
+  iE8_INX, iE9_SBC_binary, iEA_NOP,        iEA_NOP, iEC_CPX, iED_SBC_binary, iEE_INC, iEF_BBS,
+  iF0_BEQ, iF1_SBC_binary, iF2_SBC_binary, iEA_NOP, i02_NOP, iF5_SBC_binary, iF6_INC, iF7_SMB,
+  iF8_SED, iF9_SBC_binary, iFA_PLX,        iEA_NOP, i5C_NOP, iFD_SBC_binary, iFE_INC, iFF_BBS
 };
 
 ifunc decimal_instruction_table [256] =
 {
-  i00_BRK, i01_ORA,         iEA_NOP,         iEA_NOP, i04_TSB, i05_ORA,         i06_ASL, iEA_NOP,
-  i08_PHP, i09_ORA,         i0A_ASL,         iEA_NOP, i0C_TSB, i0D_ORA,         i0E_ASL, iEA_NOP,
-  i10_BPL, i11_ORA,         i12_ORA,         iEA_NOP, i14_TRB, i15_ORA,         i16_ASL, iEA_NOP,
-  i18_CLC, i19_ORA,         i1A_INC,         iEA_NOP, i1C_TRB, i1D_ORA,         i1E_ASL, iEA_NOP,
-  i20_JSR, i21_AND,         iEA_NOP,         iEA_NOP, i24_BIT, i25_AND,         i26_ROL, iEA_NOP,
-  i28_PLP, i29_AND,         i2A_ROL,         iEA_NOP, i2C_BIT, i2D_AND,         i2E_ROL, iEA_NOP,
-  i30_BMI, i31_AND,         i32_AND,         iEA_NOP, i34_BIT, i35_AND,         i36_ROL, iEA_NOP,
-  i38_SEC, i39_AND,         i3A_DEC,         iEA_NOP, i3C_BIT, i3D_AND,         i3E_ROL, iEA_NOP,
-  i40_RTI, i41_EOR,         iEA_NOP,         iEA_NOP, iEA_NOP, i45_EOR,         i46_LSR, iEA_NOP,
-  i48_PHA, i49_EOR,         i4A_LSR,         iEA_NOP, i4C_JMP, i4D_EOR,         i4E_LSR, iEA_NOP,
-  i50_BVC, i51_EOR,         i52_EOR,         iEA_NOP, iEA_NOP, i55_EOR,         i56_LSR, iEA_NOP,
-  i58_CLI, i59_EOR,         i5A_PHY,         iEA_NOP, iEA_NOP, i5D_EOR,         i5E_LSR, iEA_NOP,
-  i60_RTS, i61_ADC_decimal, iEA_NOP,         iEA_NOP, i64_STZ, i65_ADC_decimal, i66_ROR, iEA_NOP,
-  i68_PLA, i69_ADC_decimal, i6A_ROR,         iEA_NOP, i6C_JMP, i6D_ADC_decimal, i6E_ROR, iEA_NOP,
-  i70_BVS, i71_ADC_decimal, i72_ADC_decimal, iEA_NOP, i74_STZ, i75_ADC_decimal, i76_ROR, iEA_NOP,
-  i78_SEI, i79_ADC_decimal, i7A_PLY,         iEA_NOP, i7C_JMP, i7D_ADC_decimal, i7E_ROR, iEA_NOP,
-  i80_BRA, i81_STA,         iEA_NOP,         iEA_NOP, i84_STY, i85_STA,         i86_STX, iEA_NOP,
-  i88_DEY, i89_BIT,         i8A_TXA,         iEA_NOP, i8C_STY, i8D_STA,         i8E_STX, iEA_NOP,
-  i90_BCC, i91_STA,         i92_STA,         iEA_NOP, i94_STY, i95_STA,         i96_STX, iEA_NOP,
-  i98_TYA, i99_STA,         i9A_TXS,         iEA_NOP, i9C_STZ, i9D_STA,         i9E_STZ, iEA_NOP,
-  iA0_LDY, iA1_LDA,         iA2_LDX,         iEA_NOP, iA4_LDY, iA5_LDA,         iA6_LDX, iEA_NOP,
-  iA8_TAY, iA9_LDA,         iAA_TAX,         iEA_NOP, iAC_LDY, iAD_LDA,         iAE_LDX, iEA_NOP,
-  iB0_BCS, iB1_LDA,         iB2_LDA,         iEA_NOP, iB4_LDY, iB5_LDA,         iB6_LDX, iEA_NOP,
-  iB8_CLV, iB9_LDA,         iBA_TSX,         iEA_NOP, iBC_LDY, iBD_LDA,         iBE_LDX, iEA_NOP,
-  iC0_CPY, iC1_CMP,         iEA_NOP,         iEA_NOP, iC4_CPY, iC5_CMP,         iC6_DEC, iEA_NOP,
-  iC8_INY, iC9_CMP,         iCA_DEX,         iEA_NOP, iCC_CPY, iCD_CMP,         iCE_DEC, iEA_NOP,
-  iD0_BNE, iD1_CMP,         iD2_CMP,         iEA_NOP, iEA_NOP, iD5_CMP,         iD6_DEC, iEA_NOP,
-  iD8_CLD, iD9_CMP,         iDA_PHX,         iEA_NOP, iEA_NOP, iDD_CMP,         iDE_DEC, iEA_NOP,
-  iE0_CPX, iE1_SBC_decimal, iEA_NOP,         iEA_NOP, iE4_CPX, iE5_SBC_decimal, iE6_INC, iEA_NOP,
-  iE8_INX, iE9_SBC_decimal, iEA_NOP,         iEA_NOP, iEC_CPX, iED_SBC_decimal, iEE_INC, iEA_NOP,
-  iF0_BEQ, iF1_SBC_decimal, iF2_SBC_decimal, iEA_NOP, iEA_NOP, iF5_SBC_decimal, iF6_INC, iEA_NOP,
-  iF8_SED, iF9_SBC_decimal, iFA_PLX,         iEA_NOP, iEA_NOP, iFD_SBC_decimal, iFE_INC, iEA_NOP
+  i00_BRK, i01_ORA,         i02_NOP,         iEA_NOP, i04_TSB, i05_ORA,         i06_ASL, i07_RMB,
+  i08_PHP, i09_ORA,         i0A_ASL,         iEA_NOP, i0C_TSB, i0D_ORA,         i0E_ASL, i0F_BBR,
+  i10_BPL, i11_ORA,         i12_ORA,         iEA_NOP, i14_TRB, i15_ORA,         i16_ASL, i17_RMB,
+  i18_CLC, i19_ORA,         i1A_INC,         iEA_NOP, i1C_TRB, i1D_ORA,         i1E_ASL, i1F_BBR,
+  i20_JSR, i21_AND,         i02_NOP,         iEA_NOP, i24_BIT, i25_AND,         i26_ROL, i27_RMB,
+  i28_PLP, i29_AND,         i2A_ROL,         iEA_NOP, i2C_BIT, i2D_AND,         i2E_ROL, i2F_BBR,
+  i30_BMI, i31_AND,         i32_AND,         iEA_NOP, i34_BIT, i35_AND,         i36_ROL, i37_RMB,
+  i38_SEC, i39_AND,         i3A_DEC,         iEA_NOP, i3C_BIT, i3D_AND,         i3E_ROL, i3F_BBR,
+  i40_RTI, i41_EOR,         i02_NOP,         iEA_NOP, i02_NOP, i45_EOR,         i46_LSR, i47_RMB,
+  i48_PHA, i49_EOR,         i4A_LSR,         iEA_NOP, i4C_JMP, i4D_EOR,         i4E_LSR, i4F_BBR,
+  i50_BVC, i51_EOR,         i52_EOR,         iEA_NOP, i02_NOP, i55_EOR,         i56_LSR, i57_RMB,
+  i58_CLI, i59_EOR,         i5A_PHY,         iEA_NOP, i5C_NOP, i5D_EOR,         i5E_LSR, i5F_BBR,
+  i60_RTS, i61_ADC_decimal, i02_NOP,         iEA_NOP, i64_STZ, i65_ADC_decimal, i66_ROR, i67_RMB,
+  i68_PLA, i69_ADC_decimal, i6A_ROR,         iEA_NOP, i6C_JMP, i6D_ADC_decimal, i6E_ROR, i6F_BBR,
+  i70_BVS, i71_ADC_decimal, i72_ADC_decimal, iEA_NOP, i74_STZ, i75_ADC_decimal, i76_ROR, i77_RMB,
+  i78_SEI, i79_ADC_decimal, i7A_PLY,         iEA_NOP, i7C_JMP, i7D_ADC_decimal, i7E_ROR, i7F_BBR,
+  i80_BRA, i81_STA,         i02_NOP,         iEA_NOP, i84_STY, i85_STA,         i86_STX, i87_SMB,
+  i88_DEY, i89_BIT,         i8A_TXA,         iEA_NOP, i8C_STY, i8D_STA,         i8E_STX, i8F_BBS,
+  i90_BCC, i91_STA,         i92_STA,         iEA_NOP, i94_STY, i95_STA,         i96_STX, i97_SMB,
+  i98_TYA, i99_STA,         i9A_TXS,         iEA_NOP, i9C_STZ, i9D_STA,         i9E_STZ, i9F_BBS,
+  iA0_LDY, iA1_LDA,         iA2_LDX,         iEA_NOP, iA4_LDY, iA5_LDA,         iA6_LDX, iA7_SMB,
+  iA8_TAY, iA9_LDA,         iAA_TAX,         iEA_NOP, iAC_LDY, iAD_LDA,         iAE_LDX, iAF_BBS,
+  iB0_BCS, iB1_LDA,         iB2_LDA,         iEA_NOP, iB4_LDY, iB5_LDA,         iB6_LDX, iB7_SMB,
+  iB8_CLV, iB9_LDA,         iBA_TSX,         iEA_NOP, iBC_LDY, iBD_LDA,         iBE_LDX, iBF_BBS,
+  iC0_CPY, iC1_CMP,         i02_NOP,         iEA_NOP, iC4_CPY, iC5_CMP,         iC6_DEC, iC7_SMB,
+  iC8_INY, iC9_CMP,         iCA_DEX,         iEA_NOP, iCC_CPY, iCD_CMP,         iCE_DEC, iCF_BBS,
+  iD0_BNE, iD1_CMP,         iD2_CMP,         iEA_NOP, i02_NOP, iD5_CMP,         iD6_DEC, iD7_SMB,
+  iD8_CLD, iD9_CMP,         iDA_PHX,         iEA_NOP, i5C_NOP, iDD_CMP,         iDE_DEC, iDF_BBS,
+  iE0_CPX, iE1_SBC_decimal, i02_NOP,         iEA_NOP, iE4_CPX, iE5_SBC_decimal, iE6_INC, iE7_SMB,
+  iE8_INX, iE9_SBC_decimal, iEA_NOP,         iEA_NOP, iEC_CPX, iED_SBC_decimal, iEE_INC, iEF_BBS,
+  iF0_BEQ, iF1_SBC_decimal, iF2_SBC_decimal, iEA_NOP, i02_NOP, iF5_SBC_decimal, iF6_INC, iF7_SMB,
+  iF8_SED, iF9_SBC_decimal, iFA_PLX,         iEA_NOP, i5C_NOP, iFD_SBC_decimal, iFE_INC, iFF_BBS
 };
 
 ifunc * instruction_table = binary_instruction_table;
@@ -99,73 +99,73 @@ ifunc * instruction_table = binary_instruction_table;
 
 char instruction_cycles [256] =
 {
-  7, 6, 0, 0, 5, 3, 5, 0, 3, 2, 2, 0, 6, 4, 6, 0,
-  2, 5, 5, 0, 5, 4, 6, 0, 2, 4, 2, 0, 6, 4, 6, 0,
-  6, 6, 0, 0, 3, 3, 5, 0, 4, 2, 2, 0, 4, 4, 6, 0,
-  2, 5, 5, 0, 4, 4, 6, 0, 2, 4, 2, 0, 4, 4, 6, 0,
+  7, 6, 2, 1, 5, 3, 5, 5, 3, 2, 2, 1, 6, 4, 6, 5,
+  2, 5, 5, 1, 5, 4, 6, 5, 2, 4, 2, 1, 6, 4, 6, 5,
+  6, 6, 2, 1, 3, 3, 5, 5, 4, 2, 2, 1, 4, 4, 6, 5,
+  2, 5, 5, 1, 4, 4, 6, 5, 2, 4, 2, 1, 4, 4, 6, 5,
 
-  6, 6, 0, 0, 0, 3, 5, 0, 3, 2, 2, 0, 3, 4, 6, 0,
-  2, 5, 5, 0, 0, 4, 6, 0, 2, 4, 3, 0, 0, 4, 6, 0,
-  6, 6, 0, 0, 3, 3, 5, 0, 4, 2, 2, 0, 6, 4, 6, 0,
-  2, 5, 5, 0, 4, 4, 6, 0, 2, 4, 4, 0, 6, 4, 6, 0,
+  6, 6, 2, 1, 3, 3, 5, 5, 3, 2, 2, 1, 3, 4, 6, 5,
+  2, 5, 5, 1, 4, 4, 6, 5, 2, 4, 3, 1, 8, 4, 6, 5,
+  6, 6, 2, 1, 3, 3, 5, 5, 4, 2, 2, 1, 6, 4, 6, 5,
+  2, 5, 5, 1, 4, 4, 6, 5, 2, 4, 4, 1, 6, 4, 6, 5,
 
-  2, 6, 0, 0, 3, 3, 3, 0, 2, 2, 2, 0, 4, 4, 4, 0,
-  2, 6, 5, 0, 4, 4, 4, 0, 2, 5, 2, 0, 4, 5, 5, 0,
-  2, 6, 2, 0, 3, 3, 3, 0, 2, 2, 2, 0, 4, 4, 4, 0,
-  2, 5, 5, 0, 4, 4, 4, 0, 2, 4, 2, 0, 4, 4, 4, 0,
+  2, 6, 2, 1, 3, 3, 3, 5, 2, 2, 2, 1, 4, 4, 4, 5,
+  2, 6, 5, 1, 4, 4, 4, 5, 2, 5, 2, 1, 4, 5, 5, 5,
+  2, 6, 2, 1, 3, 3, 3, 5, 2, 2, 2, 1, 4, 4, 4, 5,
+  2, 5, 5, 1, 4, 4, 4, 5, 2, 4, 2, 1, 4, 4, 4, 5,
 
-  2, 6, 0, 0, 3, 3, 5, 0, 2, 2, 2, 0, 4, 4, 6, 0,
-  2, 5, 5, 0, 0, 4, 6, 0, 2, 4, 3, 0, 0, 4, 6, 0,
-  2, 6, 0, 0, 3, 3, 5, 0, 2, 2, 2, 0, 4, 4, 6, 0,
-  2, 5, 5, 0, 0, 4, 6, 0, 2, 4, 4, 0, 0, 4, 6, 0
+  2, 6, 2, 1, 3, 3, 5, 5, 2, 2, 2, 1, 4, 4, 6, 5,
+  2, 5, 5, 1, 4, 4, 6, 5, 2, 4, 3, 1, 4, 4, 6, 5,
+  2, 6, 2, 1, 3, 3, 5, 5, 2, 2, 2, 1, 4, 4, 6, 5,
+  2, 5, 5, 1, 4, 4, 6, 5, 2, 4, 4, 1, 4, 4, 6, 5
 };
 
 /* debugger disassembler tables */
 
 char instruction_size [256] =
 {
-  2, 2, 0, 0, 2, 2, 2, 0, 1, 2, 1, 0, 3, 3, 3, 0,
-  2, 2, 2, 0, 2, 2, 2, 0, 1, 3, 1, 0, 3, 3, 3, 0,
-  3, 2, 0, 0, 2, 2, 2, 0, 1, 2, 1, 0, 3, 3, 3, 0,
-  2, 2, 2, 0, 2, 2, 2, 0, 1, 3, 1, 0, 3, 3, 3, 0,
+  2, 2, 2, 1, 2, 2, 2, 2, 1, 2, 1, 1, 3, 3, 3, 3,
+  2, 2, 2, 1, 2, 2, 2, 2, 1, 3, 1, 1, 3, 3, 3, 3,
+  3, 2, 2, 1, 2, 2, 2, 2, 1, 2, 1, 1, 3, 3, 3, 3,
+  2, 2, 2, 1, 2, 2, 2, 2, 1, 3, 1, 1, 3, 3, 3, 3,
 
-  1, 2, 0, 0, 0, 2, 2, 0, 1, 2, 1, 0, 3, 3, 3, 0,
-  2, 2, 2, 0, 0, 2, 2, 0, 1, 3, 1, 0, 0, 3, 3, 0,
-  1, 2, 0, 0, 2, 2, 2, 0, 1, 2, 1, 0, 3, 3, 3, 0,
-  2, 2, 2, 0, 2, 2, 2, 0, 1, 3, 1, 0, 3, 3, 3, 0,
+  1, 2, 2, 1, 2, 2, 2, 2, 1, 2, 1, 1, 3, 3, 3, 3,
+  2, 2, 2, 1, 2, 2, 2, 2, 1, 3, 1, 1, 3, 3, 3, 3,
+  1, 2, 2, 1, 2, 2, 2, 2, 1, 2, 1, 1, 3, 3, 3, 3,
+  2, 2, 2, 1, 2, 2, 2, 2, 1, 3, 1, 1, 3, 3, 3, 3,
 
-  2, 2, 0, 0, 2, 2, 2, 0, 1, 2, 1, 0, 3, 3, 3, 0,
-  2, 2, 2, 0, 2, 2, 2, 0, 1, 3, 1, 0, 3, 3, 3, 0,
-  2, 2, 2, 0, 2, 2, 2, 0, 1, 2, 1, 0, 3, 3, 3, 0,
-  2, 2, 2, 0, 2, 2, 2, 0, 1, 3, 1, 0, 3, 3, 3, 0,
+  2, 2, 2, 1, 2, 2, 2, 2, 1, 2, 1, 1, 3, 3, 3, 3,
+  2, 2, 2, 1, 2, 2, 2, 2, 1, 3, 1, 1, 3, 3, 3, 3,
+  2, 2, 2, 1, 2, 2, 2, 2, 1, 2, 1, 1, 3, 3, 3, 3,
+  2, 2, 2, 1, 2, 2, 2, 2, 1, 3, 1, 1, 3, 3, 3, 3,
 
-  2, 2, 0, 0, 2, 2, 2, 0, 1, 2, 1, 0, 3, 3, 3, 0,
-  2, 2, 2, 0, 0, 2, 2, 0, 1, 3, 1, 0, 0, 3, 3, 0,
-  2, 2, 0, 0, 2, 2, 2, 0, 1, 2, 1, 0, 3, 3, 3, 0,
-  2, 2, 2, 0, 0, 2, 2, 0, 1, 3, 1, 0, 0, 3, 3, 0
+  2, 2, 2, 1, 2, 2, 2, 2, 1, 2, 1, 1, 3, 3, 3, 3,
+  2, 2, 2, 1, 2, 2, 2, 2, 1, 3, 1, 1, 3, 3, 3, 3,
+  2, 2, 2, 1, 2, 2, 2, 2, 1, 2, 1, 1, 3, 3, 3, 3,
+  2, 2, 2, 1, 2, 2, 2, 2, 1, 3, 1, 1, 3, 3, 3, 3
 };
 
 char instruction_is_branch [256] =
 {
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+  1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+  1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
 
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+  1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+  1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
 
-  1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+  1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+  1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
 
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+  1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+  1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1
 };
 
 char instruction_is_immediate [256] =
@@ -201,7 +201,7 @@ const char * standard_instruction_strings [256] =
   "tsb  $%2.2x",
   "ora  $%2.2x",
   "asl  $%2.2x",
-  "",
+  "rmb0 $%2.2x",
   "php",
   "ora  #$%2.2x",
   "asl  A",
@@ -209,7 +209,7 @@ const char * standard_instruction_strings [256] =
   "tsb  $%4.4x",
   "ora  $%4.4x",
   "asl  $%4.4x",
-  "",
+  "bbr0 $%4.4x (%+d)",
 
   /* 1 */
   "bpl  $%4.4x   (%+d)",
@@ -219,7 +219,7 @@ const char * standard_instruction_strings [256] =
   "trb  $%2.2x",
   "ora  $%2.2x,X",
   "asl  $%2.2x,X",
-  "",
+  "rmb1 $%2.2x",
   "clc",
   "ora  $%4.4x,Y",
   "inc  A",
@@ -227,7 +227,7 @@ const char * standard_instruction_strings [256] =
   "trb  $%4.4x",
   "trb  $%4.4x,X",
   "trb  $%4.4x,X",
-  "",
+  "bbr1  $%4.4x (%+d)",
 
   /* 2 */
   "jsr  $%4.4x",
@@ -237,7 +237,7 @@ const char * standard_instruction_strings [256] =
   "bit  $%2.2x",
   "and  $%2.2x",
   "rol  $%2.2x",
-  "",
+  "rmb2 $%2.2x",
   "plp",
   "and  #$%2.2x",
   "rol  A",
@@ -245,7 +245,7 @@ const char * standard_instruction_strings [256] =
   "bit  $%4.4x",
   "and  $%4.4x",
   "rol  $%4.4x",
-  "",
+  "bbr2 $%4.4x (%+d)",
 
   /* 3 */
   "bmi  $%4.4x   (%+d)",
@@ -255,7 +255,7 @@ const char * standard_instruction_strings [256] =
   "bit  $%2.2x,X",
   "and  $%2.2x,X",
   "rol  $%2.2x,X",
-  "",
+  "rmb3 $%2.2x",
   "sec",
   "and  $%4.4x,Y",
   "dec  A",
@@ -263,7 +263,7 @@ const char * standard_instruction_strings [256] =
   "bit  $%4.4x,X",
   "and  $%4.4x,X",
   "rol  $%4.4x,X",
-  "",
+  "bbr3 $%4.4x (%+d)",
 
   /* 4 */
   "rti",
@@ -273,7 +273,7 @@ const char * standard_instruction_strings [256] =
   "",
   "eor  $%2.2x",
   "lsr  $%2.2x",
-  "",
+  "rmb4 $%2.2x",
   "pha",
   "eor  #$%2.2x",
   "lsr  A",
@@ -281,7 +281,7 @@ const char * standard_instruction_strings [256] =
   "jmp  $%4.4x",
   "eor  $%4.4x",
   "lsr  $%4.4x",
-  "",
+  "bbr4 $%4.4x (%+d)",
 
   /* 5 */
   "bvc  $%4.4x   (%+d)",
@@ -291,7 +291,7 @@ const char * standard_instruction_strings [256] =
   "",
   "eor  $%2.2x,X",
   "lsr  $%2.2x,X",
-  "",
+  "rmb5 $%2.2x",
   "cli",
   "eor  $%4.4x,Y",
   "phy",
@@ -299,7 +299,7 @@ const char * standard_instruction_strings [256] =
   "",
   "eor  $%4.4x,X",
   "lsr  $%4.4x,X",
-  "",
+  "bbr5 $%4.4x (%+d)",
 
   /* 6 */
   "rts",
@@ -309,7 +309,7 @@ const char * standard_instruction_strings [256] =
   "stz  $%2.2x",
   "adc  $%2.2x",
   "ror  $%2.2x",
-  "",
+  "rmb6 $%2.2x",
   "pla",
   "adc  #$%2.2x",
   "ror  A",
@@ -317,7 +317,7 @@ const char * standard_instruction_strings [256] =
   "jmp  ($%4.4x)",
   "adc  $%4.4x",
   "ror  $%4.4x",
-  "",
+  "bbr6 $%4.4x (%+d)",
 
   /* 7 */
   "bvs  $%4.4x   (%+d)",
@@ -327,7 +327,7 @@ const char * standard_instruction_strings [256] =
   "stz  $%2.2x,X",
   "adc  $%2.2x,X",
   "ror  $%2.2x,X",
-  "",
+  "rmb7 $%2.2x",
   "sei",
   "adc  $%4.4x,Y",
   "ply",
@@ -335,7 +335,7 @@ const char * standard_instruction_strings [256] =
   "jmp  ($%4.4x,X)",
   "adc  $%4.4x,X",
   "ror  $%4.4x,X",
-  "",
+  "bbr7 $%4.4x (%+d)",
 
   /* 8 */
   "bra  $%4.4x   (%+d)",
@@ -345,7 +345,7 @@ const char * standard_instruction_strings [256] =
   "sty  $%2.2x",
   "sta  $%2.2x",
   "stx  $%2.2x",
-  "",
+  "smb0 $%2.2x",
   "dey",
   "bit  #$%2.2x",
   "txa",
@@ -353,7 +353,7 @@ const char * standard_instruction_strings [256] =
   "sty  $%4.4x",
   "sta  $%4.4x",
   "stx  $%4.4x",
-  "",
+  "bbs0 $%4.4x (%+d)",
 
   /* 9 */
   "bcc  $%4.4x   (%+d)",
@@ -363,7 +363,7 @@ const char * standard_instruction_strings [256] =
   "sty  $%2.2x,X",
   "sta  $%2.2x,X",
   "stx  $%2.2x,Y",
-  "",
+  "smb1 $%2.2x",
   "tya",
   "sta  $%4.4x,Y",
   "txs",
@@ -371,7 +371,7 @@ const char * standard_instruction_strings [256] =
   "stz  $%4.4x",
   "sta  $%4.4x,X",
   "stz  $%4.4x,X",
-  "",
+  "bbs1 $%4.4x (%+d)",
 
   /* A */
   "ldy  #$%2.2x",
@@ -381,7 +381,7 @@ const char * standard_instruction_strings [256] =
   "ldy  $%2.2x",
   "lda  $%2.2x",
   "ldx  $%2.2x",
-  "",
+  "smb2 $%2.2x",
   "tay",
   "lda  #$%2.2x",
   "tax",
@@ -389,7 +389,7 @@ const char * standard_instruction_strings [256] =
   "ldy  $%4.4x",
   "lda  $%4.4x",
   "ldx  $%4.4x",
-  "",
+  "bbs2 $%4.4x (%+d)",
 
   /* B */
   "bcs  $%4.4x   (%+d)",
@@ -399,7 +399,7 @@ const char * standard_instruction_strings [256] =
   "ldy  $%2.2x,X",
   "lda  $%2.2x,X",
   "ldx  $%2.2x,Y",
-  "",
+  "smb3 $%2.2x",
   "clv",
   "lda  $%4.4x,Y",
   "tsx",
@@ -407,7 +407,7 @@ const char * standard_instruction_strings [256] =
   "ldy  $%4.4x,X",
   "lda  $%4.4x,X",
   "ldx  $%4.4x,Y",
-  "",
+  "bbs3 $%4.4x (%+d)",
 
   /* C */
   "cpy  #$%2.2x",
@@ -417,7 +417,7 @@ const char * standard_instruction_strings [256] =
   "cpy  $%2.2x",
   "cmp  $%2.2x",
   "dec  $%2.2x",
-  "",
+  "smb4 $%2.2x",
   "iny",
   "cmp  #$%2.2x",
   "dex",
@@ -425,7 +425,7 @@ const char * standard_instruction_strings [256] =
   "cpy  $%4.4x",
   "cmp  $%4.4x",
   "dec  $%4.4x",
-  "",
+  "bbs4 $%4.4x (%+d)",
 
   /* D */
   "bne  $%4.4x   (%+d)",
@@ -435,7 +435,7 @@ const char * standard_instruction_strings [256] =
   "",
   "cmp  $%2.2x,X",
   "dec  $%2.2x,X",
-  "",
+  "smb5 $%2.2x",
   "cld",
   "cmp  $%4.4x,Y",
   "phx",
@@ -443,7 +443,7 @@ const char * standard_instruction_strings [256] =
   "",
   "cmp  $%4.4x,X",
   "dec  $%4.4x,X",
-  "",
+  "bbs5 $%4.4x (%+d)",
 
   /* E */
   "cpx  #$%2.2x",
@@ -453,7 +453,7 @@ const char * standard_instruction_strings [256] =
   "cpx  $%2.2x",
   "sbc  $%2.2x",
   "inc  $%2.2x",
-  "",
+  "smb6 $%2.2x",
   "inx",
   "sbc  #$%2.2x",
   "nop",
@@ -461,7 +461,7 @@ const char * standard_instruction_strings [256] =
   "cpx  $%4.4x",
   "sbc  $%4.4x",
   "inc  $%4.4x",
-  "",
+  "bbs6 $%4.4x (%+d)",
 
   /* F */
   "beq  $%4.4x   (%+d)",
@@ -471,7 +471,7 @@ const char * standard_instruction_strings [256] =
   "",
   "sbc  $%2.2x,X",
   "inc  $%2.2x,X",
-  "",
+  "smb7 $%2.2x",
   "sed",
   "sbc  $%4.4x,Y",
   "plx",
@@ -479,7 +479,7 @@ const char * standard_instruction_strings [256] =
   "",
   "sbc  $%4.4x,X",
   "inc  $%4.4x,X",
-  ""
+  "bbs7 $%4.4x (%+d)"
 };
 
 const char * orthogonal_instruction_strings [256] =
@@ -492,7 +492,7 @@ const char * orthogonal_instruction_strings [256] =
   "tsb  $%2.2x",
   "or   $%2.2x",
   "shl  $%2.2x",
-  "",
+  "rmb  0,$%2.2x",
   "psh  P",
   "or   #$%2.2x",
   "shl  A",
@@ -500,17 +500,17 @@ const char * orthogonal_instruction_strings [256] =
   "tsb  $%4.4x",
   "or   $%4.4x",
   "shl  $%4.4x",
-  "",
+  "bbr  0,$%4.4x (%+d)",
 
   /* 1 */
-  "bnc  $%+d",
+  "bnc  $%4.4x   (%+d)",
   "or   ($%2.2x)+Y",
   "or   ($%2.2x)",
   "",
   "trb  $%2.2x",
   "or   $%2.2x+X",
   "shl  $%2.2x+X",
-  "",
+  "rmb  1,$%2.2x",
   "clr  C",
   "or   $%4.4x+Y",
   "inc  A",
@@ -518,7 +518,7 @@ const char * orthogonal_instruction_strings [256] =
   "trb  $%4.4x",
   "or   $%4.4x+X",
   "shl  $%4.4x+X",
-  "",
+  "bbr  1,$%4.4x (%+d)",
 
   /* 2 */
   "jsr  $%4.4x",
@@ -528,7 +528,7 @@ const char * orthogonal_instruction_strings [256] =
   "bit  $%2.2x",
   "and  $%2.2x",
   "rol  $%2.2x",
-  "",
+  "rmb  2,$%2.2x",
   "pul  P",
   "and  #$%2.2x",
   "rol  A",
@@ -536,17 +536,17 @@ const char * orthogonal_instruction_strings [256] =
   "bit  $%4.4x",
   "and  $%4.4x",
   "rol  $%4.4x",
-  "",
+  "bbr  2,$%4.4x (%+d)",
 
   /* 3 */
-  "bns  %+d",
+  "bns  $%4.4x   (%+d)",
   "and  ($%2.2x)+Y",
   "and  ($%2.2x)",
   "",
   "bit  $%2.2x+X",
   "and  $%2.2x+X",
   "rol  $%2.2x+X",
-  "",
+  "rmb  3,$%2.2x",
   "set  C",
   "and  $%4.4x+Y",
   "dec  A",
@@ -554,7 +554,7 @@ const char * orthogonal_instruction_strings [256] =
   "bit  $%4.4x+X",
   "and  $%4.4x+X",
   "rol  $%4.4x+X",
-  "",
+  "bbr  3,$%4.4x (%+d)",
 
   /* 4 */
   "rti",
@@ -564,7 +564,7 @@ const char * orthogonal_instruction_strings [256] =
   "",
   "xor  $%2.2x",
   "shr  $%2.2x",
-  "",
+  "rmb  4,$%2.2x",
   "psh  A",
   "xor  #$%2.2x",
   "shr  A",
@@ -572,7 +572,7 @@ const char * orthogonal_instruction_strings [256] =
   "jmp  $%4.4x",
   "xor  $%4.4x",
   "shr  $%4.4x",
-  "",
+  "bbr  4,$%4.4x (%+d)",
 
   /* 5 */
   "bvc  %+d",
@@ -582,7 +582,7 @@ const char * orthogonal_instruction_strings [256] =
   "",
   "xor  $%2.2x+X",
   "shr  $%2.2x+X",
-  "",
+  "rmb  5,$%2.2x",
   "clr  I",
   "xor  $%4.4x+Y",
   "psh  Y",
@@ -590,7 +590,7 @@ const char * orthogonal_instruction_strings [256] =
   "",
   "xor  $%4.4x+X",
   "shr  $%4.4x+X",
-  "",
+  "bbr  5,$%4.4x (%+d)",
 
   /* 6 */
   "rts",
@@ -600,7 +600,7 @@ const char * orthogonal_instruction_strings [256] =
   "mov  #0,$%2.2x",
   "adc  $%2.2x",
   "ror  $%2.2x",
-  "",
+  "rmb  6,$%2.2x",
   "pul  A",
   "adc  #$%2.2x",
   "ror  A",
@@ -608,17 +608,17 @@ const char * orthogonal_instruction_strings [256] =
   "jmp  ($%4.4x)",
   "adc  $%4.4x",
   "ror  $%4.4x",
-  "",
+  "bbr  6,$%4.4x (%+d)",
 
   /* 7 */
-  "bvs  %+d",
+  "bvs  $%4.4x   (%+d)",
   "adc  ($%2.2x)+Y",
   "adc  ($%2.2x)",
   "",
   "mov  #0,$%2.2x+X",
   "adc  $%2.2x+X",
   "ror  $%2.2x+X",
-  "",
+  "rmb  7,$%2.2x",
   "set  I",
   "adc  $%4.4x+Y",
   "pul  Y",
@@ -626,17 +626,17 @@ const char * orthogonal_instruction_strings [256] =
   "jmp  ($%4.4x+X)",
   "adc  $%4.4x+X",
   "ror  $%4.4x+X",
-  "",
+  "bbr  7,$%4.4x (%+d)",
 
   /* 8 */
-  "bra  %+d",
+  "bra  $%4.4x   (%+d)",
   "mov  A,($%2.2x+X)",
   "",
   "",
   "mov  Y,$%2.2x",
   "mov  A,$%2.2x",
   "mov  X,$%2.2x",
-  "",
+  "smb  0,$%2.2x",
   "dec  Y",
   "bit  #$%2.2x",
   "mov  X,A",
@@ -644,17 +644,17 @@ const char * orthogonal_instruction_strings [256] =
   "mov  Y,$%4.4x",
   "mov  A,$%4.4x",
   "mov  X,$%4.4x",
-  "",
+  "bbs  0,$%4.4x (%+d)",
 
   /* 9 */
-  "bcc  %+d",
+  "bcc  $%4.4x   (%+d)",
   "mov  A,($%2.2x)+Y",
   "mov  A,($%2.2x)",
   "",
   "mov  Y,$%2.2x+X",
   "mov  A,$%2.2x+X",
   "mov  X,$%2.2x+Y",
-  "",
+  "smb  1,$%2.2x",
   "mov  Y,A",
   "mov  A,$%4.4x+X",
   "mov  X,S",
@@ -662,7 +662,7 @@ const char * orthogonal_instruction_strings [256] =
   "mov  #0,$%4.4x",
   "mov  A,$%4.4x+X",
   "mov  #0,$%4.4x+X",
-  "",
+  "bbs  1,$%4.4x (%+d)",
 
   /* A */
   "mov  #$%2.2x,Y",
@@ -672,7 +672,7 @@ const char * orthogonal_instruction_strings [256] =
   "mov  $%2.2x,Y",
   "mov  $%2.2x,A",
   "mov  $%2.2x,X",
-  "",
+  "smb  2,$%2.2x",
   "mov  A,Y",
   "mov  #$%2.2x,A",
   "mov  A,X",
@@ -680,17 +680,17 @@ const char * orthogonal_instruction_strings [256] =
   "mov  $%4.4x,Y",
   "mov  $%4.4x,A",
   "mov  $%4.4x,X",
-  "",
+  "bbs  2,$%4.4x (%+d)",
 
   /* B */
-  "bcs  %+d",
+  "bcs  $%4.4x   (%+d)",
   "mov  ($%2.2x)+Y,A",
   "mov  ($%2.2x),A",
   "",
   "mov  $%2.2x+X,Y",
   "mov  $%2.2x+X,A",
   "mov  $%2.2x+Y,X",
-  "",
+  "smb  3,$%2.2x",
   "clr  V",
   "mov  $%4.4x+Y,A",
   "mov  S,X",
@@ -698,7 +698,7 @@ const char * orthogonal_instruction_strings [256] =
   "mov  $%4.4x+X,Y",
   "mov  $%4.4x+X,A",
   "mov  $%4.4x+Y,X",
-  "",
+  "bbs  3,$%4.4x (%+d)",
 
   /* C */
   "cmp  Y,#$%2.2x",
@@ -708,7 +708,7 @@ const char * orthogonal_instruction_strings [256] =
   "cmp  Y,$%2.2x",
   "cmp  A,$%2.2x",
   "dec  $%2.2x",
-  "",
+  "smb  4,$%2.2x",
   "inc  Y",
   "cmp  A,#$%2.2x",
   "dec  X",
@@ -716,17 +716,17 @@ const char * orthogonal_instruction_strings [256] =
   "cmp  Y,$%4.4x",
   "cmp  A,$%4.4x",
   "dec  $%4.4x",
-  "",
+  "bbs  4,$%4.4x (%+d)",
 
   /* D */
-  "bzc  %+d",
+  "bzc  $%4.4x   (%+d)",
   "cmp  A,($%2.2x)+Y",
   "cmp  A,($%2.2x)",
   "",
   "",
   "cmp  A,$%2.2x+X",
   "dec  $%2.2x+X",
-  "",
+  "smb  5,$%2.2x",
   "clr  D",
   "cmp  A,$%4.4x+Y",
   "psh  X",
@@ -734,7 +734,7 @@ const char * orthogonal_instruction_strings [256] =
   "",
   "cmp  A,$%4.4x+X",
   "dec  $%4.4x+X",
-  "",
+  "bbs  5,$%4.4x (%+d)",
 
   /* E */
   "cmp  X,#$%2.2x",
@@ -744,7 +744,7 @@ const char * orthogonal_instruction_strings [256] =
   "cmp  X,$%2.2x",
   "sbc  $%2.2x",
   "inc  $%2.2x",
-  "",
+  "smb  6,$%2.2x",
   "inc  X",
   "sbc  #$%2.2x",
   "nop",
@@ -752,17 +752,17 @@ const char * orthogonal_instruction_strings [256] =
   "cmp  X,$%4.4x",
   "sbc  $%4.4x",
   "inc  $%4.4x",
-  "",
+  "bbs  6,$%4.4x (%+d)",
 
   /* F */
-  "beq  %+d",
+  "beq  $%4.4x   (%+d)",
   "sbc  ($%2.2x)+Y",
   "sbc  ($%2.2x)",
   "",
   "",
   "sbc  $%2.2x+X",
   "inc  $%2.2x+X",
-  "",
+  "smb  7,$%2.2x",
   "set  D",
   "sbc  $%4.4x+Y",
   "pul  X",
@@ -770,7 +770,7 @@ const char * orthogonal_instruction_strings [256] =
   "",
   "sbc  $%4.4x+X",
   "inc  $%4.4x+X",
-  ""
+  "bbs  7,$%4.4x (%+d)"
 };
 
 const char ** instruction_strings = standard_instruction_strings;

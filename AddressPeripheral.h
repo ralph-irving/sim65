@@ -8,6 +8,7 @@
 
 #include <cassert>
 #include <cstdio>
+#include <cstdint>
 
 class AddressPeripheral;
 
@@ -54,7 +55,7 @@ public:
 extern ap_reader_t ap_reader [];
 extern ap_writer_t ap_writer [];
 
-inline unsigned char READ (unsigned short addr)
+inline uint8_t READ (uint16_t addr)
 {
   ap_reader_t reader = ap_reader[addr];
 
@@ -68,7 +69,7 @@ inline unsigned char READ (unsigned short addr)
   return ((reader.ap)->*(reader.read))(addr);
 }
 
-inline void WRITE (unsigned short addr, unsigned char byte)
+inline void WRITE (uint16_t addr, uint8_t byte)
 {
   ap_writer_t writer = ap_writer[addr];
 

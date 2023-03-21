@@ -37,7 +37,7 @@ DisasmWindow::DisasmWindow (wxWindow * parent, Memory * nmem, BreakpointManager 
   SetBackgroundColour(*wxWHITE);
 
   Prefs * prefs = Prefs::GetPrefs();
-  SetFont(wxFont(prefs->WindowFontSize(), wxMODERN, wxNORMAL, wxNORMAL));
+  SetFont(wxFont(prefs->WindowFontSize(), wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
 
   firstaddr = lastaddr = 0;
 
@@ -62,7 +62,11 @@ DisasmWindow::DisasmWindow (wxWindow * parent, Memory * nmem, BreakpointManager 
   // this is here to set the width of the virtual window
   // the height is bogus, but more than the height of the client area
   SetScrollbars(cwidth, cheight, DISASM_WIDTH, 1000);
-  SetClientSize(client_width + scrollbar_width + 1, cheight);
+
+  wxSize csz;
+  csz.Set(client_width + scrollbar_width + 1, cheight);
+  SetClientSize(csz);
+  SetMinClientSize(csz);
 }
 
 /* Count the # of lines at and after addr */

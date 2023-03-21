@@ -11,7 +11,7 @@ BEGIN_EVENT_TABLE(Acia6551Frame, wxFrame)
 EVT_CLOSE(Acia6551Frame::OnClose)
 END_EVENT_TABLE()
 
-#define NORESIZE_FRAME (wxDEFAULT_FRAME_STYLE & ~(wxRESIZE_BORDER | wxRESIZE_BOX | wxMAXIMIZE_BOX))
+#define NORESIZE_FRAME (wxDEFAULT_FRAME_STYLE & ~(wxRESIZE_BORDER | wxMAXIMIZE_BOX))
 
 Acia6551Frame::~Acia6551Frame ()
 {
@@ -28,7 +28,7 @@ Acia6551Frame::Acia6551Frame (const wxString& title, Acia6551 * acia)
   initialized = false;
 
   Prefs * prefs = Prefs::GetPrefs();
-  wxFont font(prefs->WindowFontSize(), wxMODERN, wxNORMAL, wxNORMAL);
+  wxFont font(prefs->WindowFontSize(), wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
   wxTextAttr attr(*wxBLACK, *wxWHITE, font);
 
   wxPanel * panel = new wxPanel(this);
@@ -86,7 +86,7 @@ Acia6551Frame::Acia6551Frame (const wxString& title, Acia6551 * acia)
   reg_sizer->Add(txdwin, 0, wxLEFT | wxRIGHT | wxBOTTOM | wxALIGN_RIGHT, prefs->BorderWidth());
   reg_sizer->Add(rxdwin, 0, wxLEFT | wxRIGHT | wxBOTTOM | wxALIGN_RIGHT, prefs->BorderWidth());
 
-  term = new wxTextCtrl(panel, -1, wxString::FromAscii(""), wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE | wxTE_LINEWRAP | wxTE_READONLY);
+  term = new wxTextCtrl(panel, -1, wxString::FromAscii(""), wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE | wxTE_CHARWRAP | wxTE_READONLY);
   term->SetFont(font);
   term->SetDefaultStyle(attr);
   term->SetSize(40 * term->GetCharWidth(), 2 * term->GetCharHeight());
@@ -98,7 +98,11 @@ Acia6551Frame::Acia6551Frame (const wxString& title, Acia6551 * acia)
   txpm = new wxTextCtrl(panel, -1, wxString::FromAscii(""), wxDefaultPosition, wxDefaultSize, wxTE_READONLY);
   txpm->SetFont(font);
   txpm->SetDefaultStyle(attr);
-  txpm->SetClientSize(20 * txpm->GetCharWidth(), 3 * txpm->GetCharHeight() / 2);
+
+  wxSize txsz;
+  txsz.Set(20 * txpm->GetCharWidth(), 3 * txpm->GetCharHeight() / 2);
+  txpm->SetClientSize(txsz);
+  txpm->SetMinClientSize(txsz);
 
   wxStaticBox * txpm_box = new wxStaticBox(panel, -1, wxString::FromAscii("Tx Params"));
   wxSizer * txpm_sizer = new wxStaticBoxSizer(txpm_box, wxVERTICAL);
@@ -107,7 +111,11 @@ Acia6551Frame::Acia6551Frame (const wxString& title, Acia6551 * acia)
   rxpm = new wxTextCtrl(panel, -1, wxString::FromAscii(""), wxDefaultPosition, wxDefaultSize, wxTE_READONLY);
   rxpm->SetFont(font);
   rxpm->SetDefaultStyle(attr);
-  rxpm->SetClientSize(20 * rxpm->GetCharWidth(), 3 * rxpm->GetCharHeight() / 2);
+
+  wxSize rxsz;
+  rxsz.Set(20 * rxpm->GetCharWidth(), 3 * rxpm->GetCharHeight() / 2);
+  rxpm->SetClientSize(rxsz);
+  rxpm->SetMinClientSize(rxsz);
 
   wxStaticBox * rxpm_box = new wxStaticBox(panel, -1, wxString::FromAscii("Rx Params"));
   wxSizer * rxpm_sizer = new wxStaticBoxSizer(rxpm_box, wxVERTICAL);
@@ -168,11 +176,18 @@ void Acia6551Frame::TellIrqEnabled (bool irq, enable_t tx, enable_t rx)
   rxirqenchk->SetValue((irq && rx == ENABLED) ? true : false);
 }
 
+void Acia6551Frame::OnExit (wxCommandEvent& event)
+{
+  Close(true);
+}
+
 void Acia6551Frame::OnClose (wxCloseEvent& event)
 {
+  /*
   if (event.CanVeto())
     event.Veto();
   else
+  */
     Destroy();
 }
 

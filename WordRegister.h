@@ -6,7 +6,7 @@
 #ifndef INCLUDED_WORDREGISTER_H
 #define INCLUDED_WORDREGISTER_H
 
-#define MAX_NUM_LISTENERS 4
+#define MAX_NUM_LISTENERS 8
 
 #include "WordRegisterListener.h"
 

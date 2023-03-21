@@ -18,7 +18,7 @@ END_EVENT_TABLE()
 
 AddressDialog::AddressDialog(wxWindow *parent)
   : wxDialog(parent, -1, wxString::FromAscii("Enter Load Address"), wxDefaultPosition,
-	     wxDefaultSize, wxDEFAULT_DIALOG_STYLE | wxDIALOG_MODAL)
+	     wxDefaultSize, wxDEFAULT_DIALOG_STYLE )
 {
   m_value = wxString::FromAscii("");
   wxString message = wxString::FromAscii("At what address do you want to load the image?");
@@ -30,7 +30,7 @@ AddressDialog::AddressDialog(wxWindow *parent)
 
 #if 0 // doesn't seem to work anyway
   wxFont wfont = m_textctrl->GetDefaultStyle().GetFont();
-  wxFont mfont(wfont.GetPointSize(), wxMODERN, wfont.GetStyle(), wfont.GetWeight());
+  wxFont mfont(wfont.GetPointSize(), wxFONTFAMILY_MODERN, wfont.GetStyle(), wfont.GetWeight());
   m_textctrl->SetDefaultStyle(wxTextAttr(*wxBLACK, wxNullColour, mfont));
 #endif
 

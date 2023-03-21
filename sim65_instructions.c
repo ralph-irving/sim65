@@ -1,20 +1,22 @@
 /*
   instructions.c
-  Copyright 2000,2001,2003 by William Sheldon Simms III
+  Copyright 2000,2001,2003,2020 by William Sheldon Simms
 
-  This file is a part of open apple -- a free Apple II emulator.
+  This file is a part of Sim65 -- a free 6502 simulator / debugger
  
-  Open apple is free software; you can redistribute it and/or modify it under the terms
+  Sim65 is free software; you can redistribute it and/or modify it under the terms
   of the GNU General Public License as published by the Free Software Foundation; either
-  version 2, or (at your option) any later version.
+  version 3, or (at your option) any later version.
  
-  Open apple is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+  Sim65 is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
   without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
   See the GNU General Public License for more details.
  
-  You should have received a copy of the GNU General Public License along with open apple;
+  You should have received a copy of the GNU General Public License along with Sim65;
   see the file COPYING. If not, visit the Free Software Foundation website at http://www.fsf.org
 */
+
+#include <stdint.h>
 
 #include "instructions.h"
 #include "tables.h"
@@ -28,21 +30,59 @@
 
 /* 65c02 registers */
 
-unsigned char A;         /* Accumulator     */
-unsigned char X, Y;      /* Index Registers */
-unsigned char P = 0x34;  /* Status Byte     */
-unsigned char S;         /* Stack Pointer   */
-unsigned char C = 0, Z = 0, I = 1, D = 0, B = 1, V = 0, N = 0;
-unsigned char interrupt_flags = 0;
-unsigned short emPC;
+uint8_t  A;         /* Accumulator     */
+uint8_t  X, Y;      /* Index Registers */
+uint8_t  P = 0x34;  /* Status Byte     */
+uint8_t  S;         /* Stack Pointer   */
+uint8_t  C = 0, Z = 0, I = 1, D = 0, B = 1, V = 0, N = 0;
+uint8_t  interrupt_flags = 0;
+uint16_t emPC;
 
-unsigned long long cycle_clock = 0;
+uint64_t cycle_clock = 0;
+
+/* Abbreviations */
 
 /* Macros to push bytes to and pull bytes from the 65c02 stack */
 
 #define PUSH(b) (WRITE_STACK(S,(b)),--S)
 #define PULL()  (++S,READ_STACK(S))
 
+/* Addressing mode macros */
+
+#define ABS(effaddr,index) do {				\
+    uint16_t baseaddr;					\
+    baseaddr = ((uint16_t)READ(emPC));			\
+    emPC++;						\
+    baseaddr += (((uint16_t)READ(emPC)) << 8);		\
+    emPC++;						\
+    (effaddr) = baseaddr;				\
+    if (index) {					\
+      (effaddr) += (uint16_t)(index);			\
+      if ((effaddr & 0xFF00) != ((baseaddr) & 0xFF00))	\
+	cycle_clock++;					\
+    }							\
+  } while(0)  
+
+#define ABS_INDIRECT(effaddr,index) do {		\
+    uint16_t baseaddr;					\
+    ABS(baseaddr,index);				\
+    (effaddr) = ((uint16_t)READ(baseaddr));		\
+    (effaddr) += (((uint16_t)READ(baseaddr+1)) << 8);	\
+  } while (0)
+
+#define ZP(effaddr,index) do {					\
+    (effaddr) = (uint16_t)(uint8_t)(READ(emPC) + (uint8_t)(index));	\
+    emPC++;							\
+  } while (0)
+
+#define ZP_INDIRECT(effaddr,index) do {				\
+    uint8_t zpaddr;						\
+    zpaddr = READ(emPC) + (uint8_t)(index);			\
+    emPC++;							\
+    (effaddr) = ((uint16_t)READ((uint16_t)zpaddr));		\
+    (effaddr) += (((uint16_t)READ((uint16_t)(zpaddr+1))) << 8);	\
+  } while (0)  
+  
 /* Macro to set N and Z flags */
 
 #define SET_FLAGS_NZ(a)     \
@@ -56,455 +96,335 @@ static unsigned short imm (void)
   return emPC++;
 }
 
-static unsigned short zp_indirect (void)
+static inline uint16_t zp_indirect (void)
 {
-  unsigned char  zp_addr;
-  unsigned short op_addr;
-
-  zp_addr  = READ(emPC); emPC++;
-  op_addr  = READ_ZP(zp_addr); zp_addr++;
-  op_addr += (256 * READ_ZP(zp_addr));
-
-  return op_addr;
+  uint16_t effaddr;
+  ZP_INDIRECT(effaddr,0);
+  return effaddr;
 }
 
-static unsigned short indirect_x (void)
+static inline uint16_t indirect_x (void)
 {
-  unsigned char  zp_addr;
-  unsigned short op_addr;
-
-  zp_addr  = READ(emPC) + X; emPC++;
-  op_addr  = READ_ZP(zp_addr); zp_addr++;
-  op_addr += (256 * READ_ZP(zp_addr));
-
-  return op_addr;
+  uint16_t effaddr;
+  ZP_INDIRECT(effaddr,X);
+  return effaddr;
 }
 
-static unsigned short indirect_y (void)
+static inline uint16_t indirect_y (void)
 {
-  unsigned char  zp_addr;
-  unsigned short op_base;
-  unsigned short op_addr;
-
-  zp_addr  = READ(emPC); emPC++;
-  op_base  = READ_ZP(zp_addr); zp_addr++;
-  op_base += (256 * READ_ZP(zp_addr));
-  op_addr  = op_base + (unsigned short)Y;
-
-  if ((op_base & 0xFF00) != (op_addr & 0xFF00))
-    ++cycle_clock;
-
-  return op_addr;
+  uint16_t baseaddr;
+  uint16_t effaddr;
+  ZP_INDIRECT(baseaddr,0);
+  effaddr = baseaddr + (unsigned short)Y;
+  if ((effaddr & 0xFF00) != (baseaddr & 0xFF00))
+    cycle_clock++;
+  return effaddr;
 }
 
-static unsigned short absolute (void)
+static inline uint16_t absolute (void)
 {
-  unsigned short op_addr;
-
-  op_addr  = READ(emPC); emPC++;
-  op_addr += (256 * READ(emPC)); emPC++;
-
-  return op_addr;
+  uint16_t effaddr;
+  ABS(effaddr,0);
+  return effaddr;
 }
 
-static unsigned short absolute_x (void)
+static inline uint16_t absolute_x (void)
 {
-  unsigned short op_base;
-  unsigned short op_addr;
-
-  op_base  = READ(emPC); emPC++;
-  op_base += (256 * READ(emPC)); emPC++;
-  op_addr  = op_base + (unsigned short)X;
-
-  if ((op_base & 0xFF00) != (op_addr & 0xFF00))
-    ++cycle_clock;
-
-  return op_addr;
+  uint16_t effaddr;
+  ABS(effaddr,X);
+  return effaddr;
 }
 
-static unsigned short absolute_y (void)
+static inline uint16_t absolute_y (void)
 {
-  unsigned short op_base;
-  unsigned short op_addr;
-
-  op_base  = READ(emPC); emPC++;
-  op_base += (256 * READ(emPC)); emPC++;
-  op_addr  = op_base + (unsigned short)Y;
-
-  if ((op_base & 0xFF00) != (op_addr & 0xFF00))
-    ++cycle_clock;
-
-  return op_addr;
+  uint16_t effaddr;
+  ABS(effaddr,Y);
+  return effaddr;
 }
 
-static unsigned char zp (void)
+static inline uint16_t zp (void)
 {
-  unsigned char zp_addr;
-  zp_addr = READ(emPC); emPC++;
-  return zp_addr;
+  uint16_t effaddr;
+  ZP(effaddr,0);
+  return effaddr;
 }
 
-static unsigned char zp_x (void)
+static inline uint16_t zp_x (void)
 {
-  return zp() + X;
+  uint16_t effaddr;
+  ZP(effaddr,X);
+  return effaddr;
 }
 
-static unsigned char zp_y (void)
+static inline uint16_t zp_y (void)
 {
-  return zp() + Y;
+  uint16_t effaddr;
+  ZP(effaddr,Y);
+  return effaddr;
 }
 
 /* 65c02 relative branch */
 
-static void branch (void)
+static inline void branch (void)
 {
-  int branch_offset;
-  unsigned short branch_dest;
+  uint16_t offset, target;
 
-  branch_offset = (signed char)READ(emPC); emPC++;
-  branch_dest   = (unsigned short)(branch_offset + (int)emPC);
+  offset = (uint16_t)((int16_t)((int8_t)READ(emPC)));
+  emPC++;
+  target = emPC + offset;
 
   ++cycle_clock;
-  if ((emPC & 0xFF00) != (branch_dest & 0xFF00))
+  if ((emPC & 0xFF00) != (target & 0xFF00))
     ++cycle_clock;
 
-  emPC = branch_dest;
+  emPC = target;
+}
+
+static inline void branch_bit_reset (char bit)
+{
+  unsigned char zp_byte;
+  unsigned char zp_addr;
+
+  zp_addr = zp();
+  zp_byte = READ(zp_addr);
+  if (zp_byte & bit)
+    ++emPC;
+  else
+    branch();
+}
+
+static inline void branch_bit_set (char bit)
+{
+  unsigned char zp_byte;
+  unsigned char zp_addr;
+
+  zp_addr = zp();
+  zp_byte = READ(zp_addr);
+  if (zp_byte & bit)
+    branch();
+  else
+    ++emPC;
+}
+
+static inline void reset_memory_bit (char bit)
+{
+  unsigned char zp_byte;
+  unsigned char zp_addr;
+
+  zp_addr  = zp();
+  zp_byte  = READ(zp_addr);
+  zp_byte &= ~bit;
+
+  WRITE(zp_addr, zp_byte);  
+}
+
+static inline void set_memory_bit (char bit)
+{
+  unsigned char zp_byte;
+  unsigned char zp_addr;
+
+  zp_addr  = zp();
+  zp_byte  = READ(zp_addr);
+  zp_byte |= bit;
+
+  WRITE(zp_addr, zp_byte);  
 }
 
 /* 65c02 loads */
 
-#define LOAD(reg,addr) \
-do { \
-  int taddr; \
-  taddr = (addr); \
-  (reg) = READ(taddr); \
-  SET_FLAGS_NZ((reg)); \
-} while (0)
-
-#define LOAD_ZP(reg,addr) \
-do { \
-  int taddr; \
-  taddr = (addr); \
-  (reg) = READ_ZP(taddr); \
-  SET_FLAGS_NZ((reg)); \
-} while (0)
+#define LOAD(reg,addr)				\
+  do {						\
+    uint16_t taddr = (addr);			\
+    (reg) = READ(taddr);			\
+    SET_FLAGS_NZ((reg));			\
+  } while (0)
 
 // stores use memory.h WRITE() macro directly
 
 /* 65c02 ALU operations */
 
-static void BIT_common (unsigned char op_byte)
+static inline void BIT (uint16_t addr)
 {
-  V = (op_byte & 0x40) ? 1 : 0;
-  N = (op_byte & 0x80) ? 1 : 0;
-  Z = (op_byte & A)    ? 0 : 1;
+  uint8_t byte = READ(addr);
+  V = (byte & 0x40) ? 1 : 0;
+  N = (byte & 0x80) ? 1 : 0;
+  Z = (byte & A)    ? 0 : 1;
 }
 
-static void BIT (unsigned short op_addr)
+static inline void ORA (uint16_t addr)
 {
-  BIT_common(READ(op_addr));
-}
-
-static void BIT_zp (unsigned char zp_addr)
-{
-  BIT_common(READ_ZP(zp_addr));
-}
-
-static void ORA_common (unsigned char op_byte)
-{
-  A |= op_byte;
+  A |= READ(addr);
   SET_FLAGS_NZ(A);
 }
 
-static void ORA (unsigned short op_addr)
+static inline void EOR (uint16_t addr)
 {
-  ORA_common(READ(op_addr));
-}
-
-static void ORA_zp (unsigned char zp_addr)
-{
-  ORA_common(READ_ZP(zp_addr));
-}
-
-static void EOR_common (unsigned char op_byte)
-{
-  A ^= op_byte;
+  A ^= READ(addr);
   SET_FLAGS_NZ(A);
 }
 
-static void EOR (unsigned short op_addr)
+static inline void AND (uint16_t addr)
 {
-  EOR_common(READ(op_addr));
-}
-
-static void EOR_zp (unsigned char zp_addr)
-{
-  EOR_common(READ_ZP(zp_addr));
-}
-
-static void AND_common (unsigned char op_byte)
-{
-  A &= op_byte;
+  A &= READ(addr);
   SET_FLAGS_NZ(A);
 }
 
-static void AND (unsigned short op_addr)
+static inline void ASL (uint16_t addr)
 {
-  AND_common(READ(op_addr));
+  uint8_t byte = READ(addr);
+  C = (byte & 0x80) ? 1 : 0;
+  byte <<= 1;
+  SET_FLAGS_NZ(byte);
+  WRITE(addr, byte);
 }
 
-static void AND_zp (unsigned char zp_addr)
+static inline void LSR (uint16_t addr)
 {
-  AND_common(READ_ZP(zp_addr));
+  uint8_t byte = READ(addr);
+  C = byte & 0x01;
+  byte >>= 1;
+  N = 0;
+  Z = byte ? 0 : 1;
+  WRITE(addr, byte);
 }
 
-static void ASL (unsigned short op_addr)
+static inline void ROL (uint16_t addr)
 {
-  unsigned char op_byte;
-
-  op_byte   = READ(op_addr);
-  C         = (op_byte & 0x80) ? 1 : 0;
-  op_byte <<= 1;
-
-  SET_FLAGS_NZ(op_byte);
-  WRITE(op_addr, op_byte);
-}
-
-static void ASL_zp (unsigned char zp_addr)
-{
-  unsigned char zp_byte;
-
-  zp_byte   = READ_ZP(zp_addr);
-  C         = (zp_byte & 0x80) ? 1 : 0;
-  zp_byte <<= 1;
-
-  SET_FLAGS_NZ(zp_byte);
-  WRITE_ZP(zp_addr, zp_byte);
-}
-
-static void LSR (unsigned short op_addr)
-{
-  unsigned char op_byte;
-
-  op_byte   = READ(op_addr);
-  C         = op_byte & 0x01;
-  op_byte >>= 1;
-  N         = 0;
-  Z         = op_byte ? 0 : 1;
-
-  WRITE(op_addr, op_byte);
-}
-
-static void LSR_zp (unsigned char zp_addr)
-{
-  unsigned char zp_byte;
-
-  zp_byte   = READ_ZP(zp_addr);
-  C         = zp_byte & 0x01;
-  zp_byte >>= 1;
-  N         = 0;
-  Z         = zp_byte ? 0 : 1;
-
-  WRITE_ZP(zp_addr, zp_byte);
-}
-
-static void ROL (unsigned short op_addr)
-{
-  unsigned char op_byte;
-  unsigned char result;
-
-  op_byte = READ(op_addr);
-  result  = (op_byte << 1) | C;
-  C       = (op_byte & 0x80) ? 1 : 0;
-
+  uint8_t byte   = READ(addr);
+  uint8_t result = (byte << 1) | C;
+  C = (byte & 0x80) ? 1 : 0;
   SET_FLAGS_NZ(result);
-  WRITE(op_addr, result);
+  WRITE(addr, result);
 }
 
-static void ROL_zp (unsigned char zp_addr)
+static inline void ROR (uint16_t addr)
 {
-  unsigned char zp_byte;
-  unsigned char result;
-
-  zp_byte = READ_ZP(zp_addr);
-  result  = (zp_byte << 1) | C;
-  C       = (zp_byte & 0x80) ? 1 : 0;
-
-  SET_FLAGS_NZ(result);
-  WRITE_ZP(zp_addr, result);
-}
-
-static void ROR (unsigned short op_addr)
-{
-  unsigned char op_byte;
-  unsigned char result;
-
-  op_byte = READ(op_addr);
-  result  = op_byte >> 1;
+  uint8_t byte   = READ(addr);
+  uint8_t result = byte >> 1;
   result |= (C ? 0x80 : 0x00);
-  C       = op_byte & 0x01;
-
+  C = byte & 0x01;
   SET_FLAGS_NZ(result);
-  WRITE(op_addr, result);
+  WRITE(addr, result);
 }
 
-static void ROR_zp (unsigned char zp_addr)
+static inline void CMP (uint8_t regval, uint16_t addr)
 {
-  unsigned char zp_byte;
-  unsigned char result;
-
-  zp_byte = READ_ZP(zp_addr);
-  result  = zp_byte >> 1;
-  result |= (C ? 0x80 : 0x00);
-  C       = zp_byte & 0x01;
-
-  SET_FLAGS_NZ(result);
-  WRITE_ZP(zp_addr, result);
-}
-
-static void CMP (unsigned char op_register, unsigned short op_addr)
-{
-  unsigned char op_byte;
-  unsigned char result;
-
-  op_byte = READ(op_addr);
-  C = (op_register >= op_byte) ? 1 : 0;
-  result = op_register - op_byte;
+  uint8_t byte = READ(addr);
+  C = (regval >= byte) ? 1 : 0;
+  uint8_t result = regval - byte;
   SET_FLAGS_NZ(result);
 }
 
-static void CMP_zp (unsigned char op_register, unsigned char zp_addr)
+static inline void INC (uint16_t addr)
 {
-  unsigned char zp_byte;
-  unsigned char result;
-
-  zp_byte = READ_ZP(zp_addr);
-  C = (op_register >= zp_byte) ? 1 : 0;
-  result = op_register - zp_byte;
-  SET_FLAGS_NZ(result);
+  uint8_t byte = READ(addr) + 1;
+  SET_FLAGS_NZ(byte);
+  WRITE(addr, byte);
 }
 
-static void INC (unsigned short op_addr)
+static inline void DEC (uint16_t addr)
 {
-  unsigned char op_byte;
-
-  op_byte = READ(op_addr) + 1;
-  SET_FLAGS_NZ(op_byte);
-  WRITE(op_addr, op_byte);
+  uint8_t byte = READ(addr) - 1;
+  SET_FLAGS_NZ(byte);
+  WRITE(addr, byte);
 }
 
-static void INC_zp (unsigned char zp_addr)
+static inline void ADC_decimal (uint16_t addr)
 {
-  unsigned char zp_byte;
-
-  zp_byte = READ_ZP(zp_addr) + 1;
-  SET_FLAGS_NZ(zp_byte);
-  WRITE_ZP(zp_addr, zp_byte);
-}
-
-static void DEC (unsigned short op_addr)
-{
-  unsigned char op_byte;
-
-  op_byte = READ(op_addr) - 1;
-  SET_FLAGS_NZ(op_byte);
-  WRITE(op_addr, op_byte);
-}
-
-static void DEC_zp (unsigned char zp_addr)
-{
-  unsigned char zp_byte;
-
-  zp_byte = READ_ZP(zp_addr) - 1;
-  SET_FLAGS_NZ(zp_byte);
-  WRITE_ZP(zp_addr, zp_byte);
-}
-
-static void ADC_decimal_common (unsigned char op_byte)
-{
-  unsigned char temp, result;
+  uint8_t ones, tens;
+  uint8_t byte = READ(addr);
 
   /* add 'ones' digits */
-  result = C + (A & 0xF) + (op_byte & 0xF);
+  ones = (A & 0xF) + (byte & 0xF) + C;
 
   /* carry if needed */
-  temp = 0;
-  if (result > 9)
+  C = 0;
+  if (ones >= 10)
     {
-      temp = 1;
-      result -= 10;
+      C = 1;
+      ones -= 10;
     }
 
   /* add 'tens' digits */
-  temp += ((A >> 4) + (op_byte >> 4));
+  tens = (A >> 4) + (byte >> 4) + C;
 
+  /* carry if needed */
   C = 0;
-  if (temp > 9)
+  if (tens > 9)
     {
       C = 1;
-      temp -= 10;
+      tens -= 10;
     }
 
-  V = C;
-  A = result + (0x10 * temp);
+  A = (tens << 4) + ones;
 
   /* set flags */
+  V = C;
   SET_FLAGS_NZ(A);
 
   /* takes one cycle more than binary */
   ++cycle_clock;
 }
 
-static void SBC_decimal_common (unsigned char op_byte)
+static inline void SBC_decimal (uint16_t addr)
 {
-  unsigned char old_A = A;
+  uint8_t ones, tens;
+  uint8_t byte = READ(addr);
 
   /* subtract 'ones' digits */
-  A = A - (op_byte & 0xF) + C - 1;
-
-  /* if borrow was needed */
-  if ((A & 0x0F) > (old_A & 0xF))
-    {
-      /* change 0x0F -> 0x09, etc. */
-      A -= 6;
-    }
-
-  /* subtract 'tens' digits */
-  A -= (op_byte & 0xF0);
+  ones = (A & 0xF) - (byte & 0xF) - (1 - C);
 
   /* borrow if needed */
-  if ((A & 0xF0) > (old_A & 0xF0))
-    A -= 0x60;
+  C = 1;
+  if (ones & 0x80)
+    {
+      C = 0;
+      ones -= 6;
+    }
+  
+  /* subtract 'tens' digits */
+  tens = (A >> 4) - (byte >> 4) - (1 - C);
 
+  /* borrow if needed */
+  C = 1;
+  if (tens & 0x80)
+    {
+      C = 0;
+      tens -= 6;
+    }
+
+  A = (tens << 4) + (ones & 0xF);
+  
   /* set flags */
-  V = C = (A > old_A) ? 0 : 1;
+  V = C;
   SET_FLAGS_NZ(A);
 
   /* takes one cycle more than binary */
   ++cycle_clock;
 }
 
-static void ADC_binary_common (unsigned char op_byte)
+static inline void ADC_binary (uint16_t addr)
 {
-  unsigned char high_bit;
+  uint8_t high;
+  uint8_t byte = READ(addr);
 
-  high_bit = A >> 7;
-  A = A + op_byte + C;
+  high = A >> 7;
+  A = A + byte + C;
 
   if (A & 0x80) /* A < 0 */
     {
       Z = 0;
       N = 1;
 
-      if (op_byte & 0x80) /* op_byte < 0 */
+      if (byte & 0x80) /* byte < 0 */
 	{
-	  C = high_bit;
+	  C = high;
 	  V = 0;
 	}
-      else /* op_byte >= 0 */
+      else /* byte >= 0 */
 	{
 	  C = 0;
-	  V = 1 ^ high_bit;
+	  V = 1 ^ high;
 	}
     }
   else /* A >= 0 */
@@ -512,39 +432,40 @@ static void ADC_binary_common (unsigned char op_byte)
       N = 0;
       Z = A ? 0 : 1;
 
-      if (op_byte & 0x80) /* op_byte < 0 */
+      if (byte & 0x80) /* byte < 0 */
 	{
 	  C = 1;
-	  V = high_bit;
+	  V = high;
 	}
-      else /* op_byte >= 0 */
+      else /* byte >= 0 */
 	{
-	  C = high_bit;
+	  C = high;
 	  V = 0;
 	}
     }
 }
 
-static void SBC_binary_common (unsigned char op_byte)
+static inline void SBC_binary (uint16_t addr)
 {
-  unsigned char high_bit;
+  uint8_t high;
+  uint8_t byte = READ(addr);
 
-  high_bit = A >> 7;
-  A = A - op_byte + C - 1;
+  high = A >> 7;
+  A = A - byte - (1 - C);
 
   if (A & 0x80) /* A < 0 */
     {
       Z = 0;
       N = 1;
 
-      if (op_byte & 0x80) /* op_byte < 0 */
+      if (byte & 0x80) /* byte < 0 */
 	{
 	  C = 0;
-	  V = 1 ^ high_bit;
+	  V = 1 ^ high;
 	}
-      else /* op_byte >= 0 */
+      else /* byte >= 0 */
 	{
-	  C = high_bit;
+	  C = high;
 	  V = 0;
 	}
     }
@@ -553,62 +474,22 @@ static void SBC_binary_common (unsigned char op_byte)
       N = 0;
       Z = A ? 0 : 1;
 
-      if (op_byte & 0x80) /* op_byte < 0 */
+      if (byte & 0x80) /* byte < 0 */
 	{
-	  C = high_bit;
+	  C = high;
 	  V = 0;
 	}
-      else /* op_byte >= 0 */
+      else /* byte >= 0 */
 	{
 	  C = 1;
-	  V = high_bit;
+	  V = high;
 	}
     }
-}
-
-static void ADC_binary (unsigned short op_addr)
-{
-  ADC_binary_common(READ(op_addr));
-}
-
-static void ADC_binary_zp (unsigned char zp_addr)
-{
-  ADC_binary_common(READ_ZP(zp_addr));
-}
-
-static void ADC_decimal (unsigned short op_addr)
-{
-  ADC_decimal_common(READ(op_addr));
-}
-
-static void ADC_decimal_zp (unsigned char zp_addr)
-{
-  ADC_decimal_common(READ_ZP(zp_addr));
-}
-
-static void SBC_binary (unsigned short op_addr)
-{
-  SBC_binary_common(READ(op_addr));
-}
-
-static void SBC_binary_zp (unsigned char zp_addr)
-{
-  SBC_binary_common(READ_ZP(zp_addr));
-}
-
-static void SBC_decimal (unsigned short op_addr)
-{
-  SBC_decimal_common(READ(op_addr));
-}
-
-static void SBC_decimal_zp (unsigned char zp_addr)
-{
-  SBC_decimal_common(READ_ZP(zp_addr));
 }
 
 /* Convert individual bits to P and reverse */
 
-unsigned char build_P (void)
+uint8_t build_P (void)
 {
   P = 0x20;
 
@@ -623,7 +504,7 @@ unsigned char build_P (void)
   return P;
 }
 
-void unbuild_P (unsigned char status)
+void unbuild_P (uint8_t status)
 {
   P = status;
 
@@ -646,36 +527,36 @@ void unbuild_P (unsigned char status)
 
 /* Generate an interrupt */
 
-void interrupt (unsigned short vector, unsigned char flag)
+void interrupt (uint16_t vector, uint8_t flag)
 {
-  unsigned char s_byte;
+  uint8_t byte;
 
   interrupt_flags &= (~flag);
 
   if (flag == F_RESET)
     {
-      B = 1;
+      B = 1; /* is this for real? */
     }
   else
     {
-      s_byte = emPC / 256;
-      PUSH(s_byte);
-      s_byte = emPC & 0xFF;
-      PUSH(s_byte);
+      byte = emPC >> 8;
+      PUSH(byte);
+      byte = emPC & 0xFF;
+      PUSH(byte);
 
       B = 0;
-      s_byte = build_P();
-      PUSH(s_byte);
+      byte = build_P();
+      PUSH(byte);
     }
 
   I = 1;
   D = 0;
   instruction_table = binary_instruction_table;
-
   build_P();
 
-  emPC = READ(vector); vector++;
-  emPC += (256 * READ(vector));
+  emPC = READ(vector);
+  vector++;
+  emPC = emPC + (READ(vector) << 8);
 
   cycle_clock += 7;
 }
@@ -704,27 +585,38 @@ void i01_ORA (void)
   ORA(indirect_x());
 }
 
+void i02_NOP (void)
+{
+  /* Two-Byte NOP */
+  emPC++;
+}
+
 void i04_TSB (void)
 {
   unsigned char zp_byte;
   unsigned char zp_addr;
 
   zp_addr  = zp();
-  zp_byte  = READ_ZP(zp_addr);
+  zp_byte  = READ(zp_addr);
   Z        = (A & zp_byte) ? 0 : 1;
   zp_byte |= A;
 
-  WRITE_ZP(zp_addr, zp_byte);
+  WRITE(zp_addr, zp_byte);
 }
 
 void i05_ORA (void)
 {
-  ORA_zp(zp());
+  ORA(zp());
 }
 
 void i06_ASL (void)
 {
-  ASL_zp(zp());
+  ASL(zp());
+}
+
+void i07_RMB (void)
+{
+  reset_memory_bit(0x01);
 }
 
 void i08_PHP (void)
@@ -767,6 +659,11 @@ void i0E_ASL (void)
   ASL(absolute());
 }
 
+void i0F_BBR (void)
+{
+  branch_bit_reset(0x01);
+}
+
 void i10_BPL (void)
 {
   if (N)
@@ -791,21 +688,26 @@ void i14_TRB (void)
   unsigned char zp_byte;
 
   zp_addr  = zp();
-  zp_byte  = READ_ZP(zp_addr);
+  zp_byte  = READ(zp_addr);
   Z        = (A & zp_byte) ? 0 : 1;
   zp_byte &= (~A);
 
-  WRITE_ZP(zp_addr, zp_byte);
+  WRITE(zp_addr, zp_byte);
 }
 
 void i15_ORA (void)
 {
-  ORA_zp(zp_x());
+  ORA(zp_x());
 }
 
 void i16_ASL (void)
 {
-  ASL_zp(zp_x());
+  ASL(zp_x());
+}
+
+void i17_RMB (void)
+{
+  reset_memory_bit(0x02);
 }
 
 void i18_CLC (void)
@@ -847,6 +749,11 @@ void i1E_ASL (void)
   ASL(absolute_x());
 }
 
+void i1F_BBR (void)
+{
+  branch_bit_reset(0x02);
+}
+
 void i20_JSR (void)
 {
   unsigned short addr;
@@ -863,17 +770,22 @@ void i21_AND (void)
 
 void i24_BIT (void)
 {
-  BIT_zp(zp());
+  BIT(zp());
 }
 
 void i25_AND (void)
 {
-  AND_zp(zp());
+  AND(zp());
 }
 
 void i26_ROL (void)
 {
-  ROL_zp(zp());
+  ROL(zp());
+}
+
+void i27_RMB (void)
+{
+  reset_memory_bit(0x04);
 }
 
 void i28_PLP (void)
@@ -912,6 +824,11 @@ void i2E_ROL (void)
   ROL(absolute());
 }
 
+void i2F_BBR (void)
+{
+  branch_bit_reset(0x04);
+}
+
 void i30_BMI (void)
 {
   if (N)
@@ -932,17 +849,22 @@ void i32_AND (void)
 
 void i34_BIT (void)
 {
-  BIT_zp(zp_x());
+  BIT(zp_x());
 }
 
 void i35_AND (void)
 {
-  AND_zp(zp_x());
+  AND(zp_x());
 }
 
 void i36_ROL (void)
 {
-  ROL_zp(zp_x());
+  ROL(zp_x());
+}
+
+void i37_RMB (void)
+{
+  reset_memory_bit(0x08);
 }
 
 void i38_SEC (void)
@@ -976,6 +898,11 @@ void i3E_ROL (void)
   ROL(absolute_x());
 }
 
+void i3F_BBR (void)
+{
+  branch_bit_reset(0x08);
+}
+
 void i40_RTI (void)
 {
   unbuild_P(PULL());
@@ -990,12 +917,17 @@ void i41_EOR (void)
 
 void i45_EOR (void)
 {
-  EOR_zp(zp());
+  EOR(zp());
 }
 
 void i46_LSR (void)
 {
-  LSR_zp(zp());
+  LSR(zp());
+}
+
+void i47_RMB (void)
+{
+  reset_memory_bit(0x10);
 }
 
 void i48_PHA (void)
@@ -1031,6 +963,11 @@ void i4E_LSR (void)
   LSR(absolute());
 }
 
+void i4F_BBR (void)
+{
+  branch_bit_reset(0x10);
+}
+
 void i50_BVC (void)
 {
   if (V)
@@ -1051,12 +988,17 @@ void i52_EOR (void)
 
 void i55_EOR (void)
 {
-  EOR_zp(zp_x());
+  EOR(zp_x());
 }
 
 void i56_LSR (void)
 {
-  LSR_zp(zp_x());
+  LSR(zp_x());
+}
+
+void i57_RMB (void)
+{
+  reset_memory_bit(0x20);
 }
 
 void i58_CLI (void)
@@ -1074,6 +1016,12 @@ void i5A_PHY (void)
   PUSH(Y);
 }
 
+void i5C_NOP (void)
+{
+  /* Three-Byte NOP */
+  emPC+=2;
+}
+
 void i5D_EOR (void)
 {
   EOR(absolute_x());
@@ -1082,6 +1030,11 @@ void i5D_EOR (void)
 void i5E_LSR (void)
 {
   LSR(absolute_x());
+}
+
+void i5F_BBR (void)
+{
+  branch_bit_reset(0x20);
 }
 
 void i60_RTS (void)
@@ -1105,22 +1058,27 @@ void i64_STZ (void)
 {
   unsigned char zp_addr;
   zp_addr = zp();
-  WRITE_ZP(zp_addr, 0);
+  WRITE(zp_addr, 0);
 }
 
 void i65_ADC_binary (void)
 {
-  ADC_binary_zp(zp());
+  ADC_binary(zp());
 }
 
 void i65_ADC_decimal (void)
 {
-  ADC_decimal_zp(zp());
+  ADC_decimal(zp());
 }
 
 void i66_ROR (void)
 {
-  ROR_zp(zp());
+  ROR(zp());
+}
+
+void i67_RMB (void)
+{
+  reset_memory_bit(0x40);
 }
 
 void i68_PLA (void)
@@ -1175,6 +1133,11 @@ void i6E_ROR (void)
   ROR(absolute());
 }
 
+void i6F_BBR (void)
+{
+  branch_bit_reset(0x40);
+}
+
 void i70_BVS (void)
 {
   if (V)
@@ -1207,22 +1170,27 @@ void i74_STZ (void)
 {
   unsigned char zp_addr;
   zp_addr = zp_x();
-  WRITE_ZP(zp_addr, 0);
+  WRITE(zp_addr, 0);
 }
 
 void i75_ADC_binary (void)
 {
-  ADC_binary_zp(zp_x());
+  ADC_binary(zp_x());
 }
 
 void i75_ADC_decimal (void)
 {
-  ADC_decimal_zp(zp_x());
+  ADC_decimal(zp_x());
 }
 
 void i76_ROR (void)
 {
-  ROR_zp(zp_x());
+  ROR(zp_x());
+}
+
+void i77_RMB (void)
+{
+  reset_memory_bit(0x80);
 }
 
 void i78_SEI (void)
@@ -1270,6 +1238,11 @@ void i7E_ROR (void)
   ROR(absolute_x());
 }
 
+void i7F_BBR (void)
+{
+  branch_bit_reset(0x80);
+}
+
 void i80_BRA (void)
 {
   branch();
@@ -1286,21 +1259,26 @@ void i84_STY (void)
 {
   unsigned char zp_addr;
   zp_addr = zp();
-  WRITE_ZP(zp_addr, Y);
+  WRITE(zp_addr, Y);
 }
 
 void i85_STA (void)
 {
   unsigned char zp_addr;
   zp_addr = zp();
-  WRITE_ZP(zp_addr, A);
+  WRITE(zp_addr, A);
 }
 
 void i86_STX (void)
 {
   unsigned char zp_addr;
   zp_addr = zp();
-  WRITE_ZP(zp_addr, X);
+  WRITE(zp_addr, X);
+}
+
+void i87_SMB (void)
+{
+  set_memory_bit(0x01);
 }
 
 void i88_DEY (void)
@@ -1343,6 +1321,11 @@ void i8E_STX (void)
   WRITE(addr, X);
 }
 
+void i8F_BBS (void)
+{
+  branch_bit_set(0x01);
+}
+
 void i90_BCC (void)
 {
   if (C)
@@ -1369,21 +1352,26 @@ void i94_STY (void)
 {
   unsigned char zp_addr;
   zp_addr = zp_x();
-  WRITE_ZP(zp_addr, Y);
+  WRITE(zp_addr, Y);
 }
 
 void i95_STA (void)
 {
   unsigned char zp_addr;
   zp_addr = zp_x();
-  WRITE_ZP(zp_addr, A);
+  WRITE(zp_addr, A);
 }
 
 void i96_STX (void)
 {
   unsigned char zp_addr;
   zp_addr = zp_y();
-  WRITE_ZP(zp_addr, X);
+  WRITE(zp_addr, X);
+}
+
+void i97_SMB (void)
+{
+  set_memory_bit(0x02);
 }
 
 void i98_TYA (void)
@@ -1425,6 +1413,11 @@ void i9E_STZ (void)
   WRITE(addr, 0);
 }
 
+void i9F_BBS (void)
+{
+  branch_bit_set(0x02);
+}
+
 void iA0_LDY (void)
 {
   LOAD(Y,imm());
@@ -1442,17 +1435,22 @@ void iA2_LDX (void)
 
 void iA4_LDY (void)
 {
-  LOAD_ZP(Y,zp());
+  LOAD(Y,zp());
 }
 
 void iA5_LDA (void)
 {
-  LOAD_ZP(A,zp());
+  LOAD(A,zp());
 }
 
 void iA6_LDX (void)
 {
-  LOAD_ZP(X,zp());
+  LOAD(X,zp());
+}
+
+void iA7_SMB (void)
+{
+  set_memory_bit(0x04);
 }
 
 void iA8_TAY (void)
@@ -1487,6 +1485,11 @@ void iAE_LDX (void)
   LOAD(X,absolute());
 }
 
+void iAF_BBS (void)
+{
+  branch_bit_set(0x04);
+}
+
 void iB0_BCS (void)
 {
   if (C)
@@ -1507,17 +1510,22 @@ void iB2_LDA (void)
 
 void iB4_LDY (void)
 {
-  LOAD_ZP(Y,zp_x());
+  LOAD(Y,zp_x());
 }
 
 void iB5_LDA (void)
 {
-  LOAD_ZP(A,zp_x());
+  LOAD(A,zp_x());
 }
 
 void iB6_LDX (void)
 {
-  LOAD_ZP(X,zp_x());
+  LOAD(X,zp_y());
+}
+
+void iB7_SMB (void)
+{
+  set_memory_bit(0x08);
 }
 
 void iB8_CLV (void)
@@ -1551,6 +1559,11 @@ void iBE_LDX (void)
   LOAD(X,absolute_y());
 }
 
+void iBF_BBS (void)
+{
+  branch_bit_set(0x08);
+}
+
 void iC0_CPY (void)
 {
   CMP(Y, imm());
@@ -1563,17 +1576,22 @@ void iC1_CMP (void)
 
 void iC4_CPY (void)
 {
-  CMP_zp(Y, zp());
+  CMP(Y, zp());
 }
 
 void iC5_CMP (void)
 {
-  CMP_zp(A, zp());
+  CMP(A, zp());
 }
 
 void iC6_DEC (void)
 {
-  DEC_zp(zp());
+  DEC(zp());
+}
+
+void iC7_SMB (void)
+{
+  set_memory_bit(0x10);
 }
 
 void iC8_INY (void)
@@ -1608,6 +1626,11 @@ void iCE_DEC (void)
   DEC(absolute());
 }
 
+void iCF_BBS (void)
+{
+  branch_bit_set(0x10);
+}
+
 void iD0_BNE (void)
 {
   if (Z)
@@ -1628,12 +1651,17 @@ void iD2_CMP (void)
 
 void iD5_CMP (void)
 {
-  CMP_zp(A, zp_x());
+  CMP(A, zp_x());
 }
 
 void iD6_DEC (void)
 {
-  DEC_zp(zp_x());
+  DEC(zp_x());
+}
+
+void iD7_SMB (void)
+{
+  set_memory_bit(0x20);
 }
 
 void iD8_CLD (void)
@@ -1662,6 +1690,11 @@ void iDE_DEC (void)
   DEC(absolute_x());
 }
 
+void iDF_BBS (void)
+{
+  branch_bit_set(0x20);
+}
+
 void iE0_CPX (void)
 {
   CMP(X, imm());
@@ -1679,22 +1712,27 @@ void iE1_SBC_decimal (void)
 
 void iE4_CPX (void)
 {
-  CMP_zp(X, zp());
+  CMP(X, zp());
 }
 
 void iE5_SBC_binary (void)
 {
-  SBC_binary_zp(zp());
+  SBC_binary(zp());
 }
 
 void iE5_SBC_decimal (void)
 {
-  SBC_decimal_zp(zp());
+  SBC_decimal(zp());
 }
 
 void iE6_INC (void)
 {
-  INC_zp(zp());
+  INC(zp());
+}
+
+void iE7_SMB (void)
+{
+  set_memory_bit(0x40);
 }
 
 void iE8_INX (void)
@@ -1738,6 +1776,11 @@ void iEE_INC (void)
   INC(absolute());
 }
 
+void iEF_BBS (void)
+{
+  branch_bit_set(0x40);
+}
+
 void iF0_BEQ (void)
 {
   if (Z)
@@ -1768,17 +1811,22 @@ void iF2_SBC_decimal (void)
 
 void iF5_SBC_binary (void)
 {
-  SBC_binary_zp(zp_x());
+  SBC_binary(zp_x());
 }
 
 void iF5_SBC_decimal (void)
 {
-  SBC_decimal_zp(zp_x());
+  SBC_decimal(zp_x());
 }
 
 void iF6_INC (void)
 {
-  INC_zp(zp_x());
+  INC(zp_x());
+}
+
+void iF7_SMB (void)
+{
+  set_memory_bit(0x80);
 }
 
 void iF8_SED (void)
@@ -1817,3 +1865,9 @@ void iFE_INC (void)
 {
   INC(absolute_x());
 }
+
+void iFF_BBS (void)
+{
+  branch_bit_set(0x80);
+}
+
