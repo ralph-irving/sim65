@@ -193,7 +193,7 @@ void Acia6551Frame::OnClose (wxCloseEvent& event)
 
 void Acia6551Frame::SetParams ()
 {
-  char txt[40];
+  char txt[80];
   char pchar[] = "NOEMS";
 
   if (txsbs & 1)
